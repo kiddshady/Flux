@@ -96,7 +96,7 @@ export function fichaMetabolito(m, { enMapa = true } = {}) {
   const ruta = (loForman[0] || loConsumen[0])?.ruta || 'glucolisis';
   return {
     titulo: m.nombre,
-    sub: `${m.c} carbono${m.c === 1 ? '' : 's'}`,
+    sub: m.c ? `${m.c} carbono${m.c === 1 ? '' : 's'}` : (m.clase || ''),
     cuerpo: `
       ${bloque('Lo forma', loForman.map(filaRx).join(''))}
       ${bloque('Lo consume', loConsumen.map(filaRx).join(''))}
@@ -119,7 +119,7 @@ export function fichaResumen() {
     <span class="fx-rend__n op-num">${esc(f[2])}</span></div>`).join('');
 
   return {
-    titulo: 'Metabolismo de los glúcidos',
+    titulo: 'Glúcidos, lípidos y energía',
     sub: `${REACCIONES.length} reacciones · ${METABOLITOS.length} metabolitos`,
     cuerpo: `
       <p class="fx-texto op-dim">Tocá una flecha para ver su enzima, o un metabolito para ver qué lo forma y qué lo consume.</p>

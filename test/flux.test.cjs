@@ -62,7 +62,7 @@ app.whenReady().then(async () => {
   ok('el splash se fue', !(await js(`!!document.getElementById('boot-splash')`)));
   ok('los <i data-icon> se reemplazaron por SVG', !(await js(`!!document.querySelector('i[data-icon]')`)));
   ok('el rail marca Mapa', await js(`!!document.querySelector('[data-view="mapa"].is-active')`));
-  ok('el panel está prendido y muestra el resumen', await js(`document.querySelector('.op-app').classList.contains('con-panel') && document.querySelector('.op-panel__title').textContent.includes('glúcidos')`));
+  ok('el panel está prendido y muestra el resumen', await js(`document.querySelector('.op-app').classList.contains('con-panel') && document.querySelector('.op-panel__title').textContent.includes('lípidos')`));
 
   console.log('\n2. Los datos cierran');
   ok('toda reacción apunta a metabolitos que existen', datos.huerfanos.length === 0, datos.huerfanos.join());
@@ -118,7 +118,9 @@ app.whenReady().then(async () => {
     return { izq: Math.round(m.left - l.left), der: Math.round(l.right - m.right) }; })()`);
   const ancho = await medirAncho();
   const letra = await js(`document.querySelector('.fx-nodo text').getBoundingClientRect().height`);
-  ok('encuadrado: el mapa queda centrado y la letra se lee', Math.abs(ancho.izq - ancho.der) <= 2 && ancho.izq > -60 && letra >= 11, JSON.stringify({ ...ancho, letra }));
+  const eje = await js(`(() => { const g = document.querySelector('[data-met="glucosa"] rect').getBoundingClientRect(); const l = document.getElementById('fx-lienzo').getBoundingClientRect(); return Math.round(g.left + g.width / 2 - (l.left + l.width / 2)); })()`);
+  ok('encuadrado: la glucólisis queda al centro', Math.abs(eje) <= 3, eje);
+  ok('encuadrado: la letra se lee', letra >= 11, JSON.stringify({ ...ancho, letra }));
   await foto('1-mapa');
 
   console.log('\n4. Elegir una reacción');
@@ -163,21 +165,29 @@ app.whenReady().then(async () => {
   ok('acercar cambia la escala', antes !== cerca, cerca);
   await js(`document.querySelector('.fx-mapa').dispatchEvent(new MouseEvent('click', { bubbles: true }))`);
   await sleep(400);
-  ok('click en el fondo suelta la elección', await js(`!document.querySelector('.fx-mapa').classList.contains('hay-eleccion') && document.querySelector('.op-panel__title').textContent.includes('glúcidos')`));
+  ok('click en el fondo suelta la elección', await js(`!document.querySelector('.fx-mapa').classList.contains('hay-eleccion') && document.querySelector('.op-panel__title').textContent.includes('lípidos')`));
   await click('[data-zoom="todo"]');
   await sleep(600);
   const vuelta = await medirAncho();
-  ok('encuadrar lo vuelve a centrar', Math.abs(vuelta.izq - vuelta.der) <= 2, JSON.stringify(vuelta));
+  ok('encuadrar vuelve al mismo lugar', vuelta.izq === ancho.izq && vuelta.der === ancho.der, JSON.stringify({ vuelta, ancho }));
+
+  if (SHOTS) {   // el mapa entero, de lejos: para revisar la distribución
+    for (let i = 0; i < 4; i++) { await click('[data-zoom="menos"]'); await sleep(450); }
+    await foto('0-entero');
+    await click('[data-zoom="todo"]');
+    await sleep(600);
+  }
 
   console.log('\n8. La lista de enzimas');
   await click('[data-view="enzimas"]');
   await sleep(700);
   ok('lista las reacciones', (await js(`document.querySelectorAll('.fx-enz').length`)) === datos.rx);
+  // el malonato inhibe a la misma enzima en sus dos papeles: paso 6 de Krebs y complejo II
   await js(`(() => { const i = document.getElementById('fx-buscar'); i.value = 'malonato'; i.dispatchEvent(new Event('input', { bubbles: true })); })()`);
   await sleep(500);
   const filtradas = await js(`[...document.querySelectorAll('.fx-enz')].filter((f) => !f.hidden).map((f) => f.dataset.rx)`);
-  ok('buscar un inhibidor deja su enzima', filtradas.length === 1 && filtradas[0] === 'sdh', filtradas.join());
-  ok('los grupos vacíos se pliegan', (await js(`[...document.querySelectorAll('.fx-grupo')].filter((g) => !g.hidden).length`)) === 1);
+  ok('buscar un inhibidor deja sus enzimas', filtradas.join() === 'sdh,c2', filtradas.join());
+  ok('los grupos vacíos se pliegan', (await js(`[...document.querySelectorAll('.fx-grupo')].filter((g) => !g.hidden).length`)) === 2);
   await click('.fx-enz[data-rx="sdh"]');
   await sleep(500);
   ok('elegir en la lista llena la ficha', (await js(`document.querySelector('.op-panel__title').textContent`)) === 'Succinato deshidrogenasa');

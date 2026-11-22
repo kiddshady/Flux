@@ -8,7 +8,7 @@
    geometría (x, y) está en unidades del lienzo del mapa (ver mapa.js).
    ═══════════════════════════════════════════════════════════════════════════ */
 
-export const LIENZO = { w: 1050, h: 1560 };
+export const LIENZO = { w: 1560, h: 1850, eje: 520 };
 
 /* El anillo de Krebs: ocho metabolitos cada 45°, medidos en sentido horario
    desde arriba. El paso 1 (citrato sintasa) queda justo arriba, donde entra
@@ -27,12 +27,17 @@ export const RUTAS = {
   gluconeogenesis: { nombre: 'Gluconeogénesis', lugar: 'Citosol', unidad: 'U7', seccion: 'La gluconeogénesis' },
   pentosas: { nombre: 'Vía de las pentosas fosfato', lugar: 'Citosol', unidad: 'U7', seccion: 'La vía de las pentosas fosfato' },
   glucogeno: { nombre: 'Glucógeno', lugar: 'Citosol', unidad: 'U7', seccion: 'El glucógeno' },
+  cadena: { nombre: 'Cadena respiratoria', lugar: 'Membrana mitocondrial interna', unidad: 'U5', seccion: 'La cadena respiratoria' },
+  betaox: { nombre: 'Oxidación de ácidos grasos', lugar: 'Matriz mitocondrial', unidad: 'U8', seccion: 'La oxidación de los ácidos grasos' },
+  cetogenesis: { nombre: 'Cuerpos cetónicos', lugar: 'Matriz mitocondrial', unidad: 'U8', seccion: 'Los cuerpos cetónicos' },
+  lipogenesis: { nombre: 'Síntesis de ácidos grasos', lugar: 'Citosol', unidad: 'U8', seccion: 'La síntesis de ácidos grasos' },
   anaplerotica: { nombre: 'Reacción anaplerótica', lugar: 'Matriz mitocondrial', unidad: 'U5', seccion: 'Un ciclo anfibólico' },
 };
 
 /* Los PDF de los apuntes, relativos a la carpeta de teoría (ajuste `apuntesDir`). */
 export const APUNTES = {
   U5: { titulo: 'U5 · Metabolismo energético', pdf: 'U5 metabolismo energético/U5 - Metabolismo energético.pdf' },
+  U8: { titulo: 'U8 · Lípidos y su metabolismo', pdf: 'U8 lípidos y su metabolismo/U8 - Lípidos y su metabolismo.pdf' },
   U7: { titulo: 'U7 · Hidratos de carbono y su metabolismo', pdf: 'U7 hidratos de carbono y su metabolismo/U7 - Hidratos de carbono y su metabolismo.pdf' },
 };
 
@@ -105,6 +110,71 @@ export const METABOLITOS = [
     notas: [
       { t: 'Fase no oxidativa (reversible): la transcetolasa (con TPP y Mg²⁺) transfiere unidades de dos carbonos y la transaldolasa (sin cofactor; forma una base de Schiff con una lisina) transfiere unidades de tres. Así 3 pentosas dan 2 fructosa-6-P y 1 gliceraldehído-3-P, y al revés.' },
       { t: 'Si la célula necesita más NADPH que ribosa, las pentosas sobrantes vuelven a la glucólisis. Si necesita ribosa sin NADPH, la saca de la fructosa-6-P y el gliceraldehído-3-P por la fase no oxidativa al revés.' },
+    ] },
+  /* ── Cadena respiratoria: los que llevan los electrones ─────────────────── */
+  { id: 'nadh', nombre: 'NADH', x: 150, y: 1640, clase: 'Entrega sus electrones al complejo I',
+    notas: [
+      { t: 'Viene del ciclo de Krebs, de la piruvato deshidrogenasa y de la β-oxidación. Rinde unos 2,5 ATP (clásicamente se redondeaba a 3): bombea 4 + 4 + 2 = 10 H⁺.' },
+      { t: 'El NADH del citosol no puede entrar a la mitocondria: lo resuelven las lanzaderas, que pasan los electrones, no el NADH. La de malato-aspartato (hígado, corazón, riñón) entra por el complejo I y rinde unos 2,5 ATP; la de glicerol-3-fosfato (músculo esquelético, cerebro) entra por la coenzima Q y rinde unos 1,5.' },
+    ] },
+  { id: 'fadh2', nombre: 'FADH₂', x: 430, y: 1760, clase: 'Entrega sus electrones por el complejo II',
+    notas: [
+      { t: 'El de la succinato deshidrogenasa. Rinde unos 1,5 ATP (clásicamente, 2): entra un paso después, se saltea el complejo I y bombea solo 6 H⁺.' },
+      { t: 'El FADH₂ de la β-oxidación le cede sus electrones directamente a la coenzima Q.' },
+    ] },
+  { id: 'coq', nombre: 'Coenzima Q', x: 430, y: 1640, clase: 'Transportador móvil (ubiquinona)',
+    notas: [
+      { t: 'Lleva los electrones de los complejos I y II al III moviéndose dentro de la membrana.' },
+      { t: 'El complejo I no le pasa nada al II: son dos entradas paralelas, y los dos le dan sus electrones a la coenzima Q.' },
+      { plus: true, t: 'Otras flavoproteínas también le dan sus electrones sin pasar por el complejo II: la acil-CoA deshidrogenasa de la β-oxidación y la glicerol-3-fosfato deshidrogenasa mitocondrial.' },
+    ] },
+  { id: 'citc', nombre: 'Citocromo c', x: 680, y: 1640, clase: 'Transportador móvil',
+    notas: [{ t: 'Una proteína chica de la cara externa de la membrana interna: lleva los electrones del complejo III al IV.' }] },
+  { id: 'agua', nombre: 'H₂O', x: 900, y: 1640, clase: 'El O₂, último aceptor, ya reducido',
+    notas: [{ t: 'Sin O₂, el complejo IV no puede ceder los electrones: el NADH y el FADH₂ quedan reducidos, se frena el ciclo de Krebs y el paso de piruvato a acetil-CoA. El piruvato se convierte en lactato.' }] },
+  { id: 'adp', nombre: 'ADP + Pi', x: 680, y: 1760, clase: 'Lo que espera la ATP sintasa',
+    notas: [{ t: 'Control respiratorio: si la célula gasta ATP, sube el ADP, la ATP sintasa deja pasar protones, el gradiente baja y la cadena se acelera. Si sobra ATP, falta ADP y la cadena se frena. La velocidad de la respiración la fija la demanda de ATP.' }] },
+  { id: 'atp', nombre: 'ATP', x: 900, y: 1760, clase: 'El producto de la fosforilación oxidativa',
+    notas: [{ t: 'Sale al citosol por el translocador ADP/ATP, que mete un ADP en la matriz por cada ATP que saca.' }] },
+
+  /* ── Oxidación de los ácidos grasos ─────────────────────────────────────── */
+  { id: 'ag', nombre: 'Ácido graso', x: 1270, y: 560, clase: 'Llega por la sangre unido a la albúmina',
+    notas: [
+      { t: 'Sale de la lipólisis: en el ayuno o el ejercicio, el glucagón y la adrenalina suben el AMPc en el adipocito y la PKA activa la lipasa sensible a hormonas. La insulina la frena.' },
+      { t: 'El glicerol que queda va al hígado: la glicerol quinasa lo fosforila y, como DHAP, entra a la glucólisis o a la gluconeogénesis.' },
+    ] },
+  { id: 'acil_cit', nombre: 'Acil-CoA (citosol)', corto: 'Acil-CoA', x: 1270, y: 670, clase: 'El ácido graso activado' },
+  { id: 'acilcarnitina', nombre: 'Acil-carnitina', x: 1270, y: 780, clase: 'La forma en que cruza la membrana interna',
+    notas: [{ t: 'La carnitina es una molécula derivada de la lisina.' }] },
+  { id: 'acil_m', nombre: 'Acil-CoA (matriz)', corto: 'Acil-CoA', x: 1270, y: 1090, clase: 'Listo para oxidarse',
+    notas: [{ t: 'Después de cada vuelta de la β-oxidación queda con dos carbonos menos y empieza otra.' }] },
+  { id: 'enoil', nombre: 'trans-Enoil-CoA', x: 1400, y: 1200, clase: 'Doble enlace trans entre C-2 y C-3' },
+  { id: 'hidroxiacil', nombre: 'L-3-Hidroxiacil-CoA', x: 1270, y: 1310, clase: 'Intermediario de la β-oxidación' },
+  { id: 'cetoacil', nombre: '3-Cetoacil-CoA', x: 1140, y: 1200, clase: 'Intermediario de la β-oxidación' },
+
+  /* ── Cuerpos cetónicos ──────────────────────────────────────────────────── */
+  { id: 'acetoacetil', nombre: 'Acetoacetil-CoA', c: 4, x: 800, y: 1010 },
+  { id: 'hmgcoa', nombre: 'HMG-CoA', c: 6, x: 960, y: 1010,
+    notas: [{ t: 'El HMG-CoA del citosol es otro: lo fabrica una isoforma distinta de la sintasa y va a la síntesis de colesterol, donde la HMG-CoA reductasa (el paso limitante, que inhiben las estatinas) lo reduce a mevalonato.' }] },
+  { id: 'acetoacetato', nombre: 'Acetoacetato', c: 4, x: 1130, y: 1010,
+    notas: [
+      { t: 'Se descarboxila espontáneamente a acetona, que se elimina por el aliento.' },
+      { t: 'Cetólisis, fuera del hígado: una transferasa (β-cetoacil-CoA transferasa) le pasa la CoA del succinil-CoA y queda acetoacetil-CoA; la tiolasa lo corta en 2 acetil-CoA, que se oxidan en el ciclo de Krebs.' },
+      { t: 'El hígado los fabrica pero no los usa: le falta la enzima que los activa. Los usan el músculo esquelético, el corazón, la corteza renal y, en el ayuno prolongado, el cerebro.' },
+    ] },
+  { id: 'bhb', nombre: 'β-Hidroxibutirato', c: 4, x: 1130, y: 1100,
+    notas: [{ t: 'Los cuerpos cetónicos son ácidos. En el ayuno se mantienen en niveles que el organismo amortigua (cetosis). En la diabetes tipo 1 sin tratar se acumulan tanto que bajan el pH de la sangre: es la cetoacidosis diabética, con aliento a acetona, cetonas en la orina y riesgo de coma.' }] },
+
+  /* ── Síntesis de ácidos grasos ──────────────────────────────────────────── */
+  { id: 'accoa_cit', nombre: 'Acetil-CoA (citosol)', corto: 'Acetil-CoA', c: 2, x: 940, y: 800,
+    notas: [{ t: 'El acetil-CoA no atraviesa la membrana interna: sale como citrato, que se forma cuando sobran acetil-CoA y ATP.' }] },
+  { id: 'malonil', nombre: 'Malonil-CoA', c: 3, x: 940, y: 690,
+    notas: [{ t: 'Inhibe la CPT-I: cuando se sintetizan ácidos grasos, impide que entren a la mitocondria a oxidarse. Así síntesis y oxidación no ocurren a la vez.' }] },
+  { id: 'palmitato', nombre: 'Palmitato', c: 16, x: 940, y: 580,
+    notas: [
+      { t: 'Elongación: se alarga a estearato (18:0) y a ácidos más largos en el retículo endoplasmático liso. El donador de los dos carbonos es otra vez el malonil-CoA, pero con la CoA en lugar de la ACP.' },
+      { t: 'Desaturación: las desaturasas del retículo introducen dobles enlaces cis; son oxidasas de función mixta. La Δ9-desaturasa lo convierte en palmitoleico, y al estearato en oleico.' },
+      { t: 'Con glicerol-3-fosfato (que sale de la DHAP) forma triglicéridos: el hígado los exporta en las VLDL y el tejido adiposo los guarda.' },
     ] },
 ];
 
@@ -494,6 +564,237 @@ export const REACCIONES = [
       { nombre: 'Glucogenosis II, Pompe', plus: true, t: 'Falta la α-glucosidasa lisosómica: el glucógeno se acumula en los lisosomas (corazón, músculo).' },
     ],
   },
+  /* ── Cadena respiratoria ────────────────────────────────────────────────── */
+  {
+    id: 'c1', ruta: 'cadena', sigla: 'I', enzima: 'Complejo I', alias: 'NADH deshidrogenasa (NADH-ubiquinona oxidorreductasa)',
+    de: ['nadh'], a: ['coq'], bombea: 4,
+    tipo: 'Transferencia de electrones del NADH a la coenzima Q',
+    notas: [
+      { t: 'Grupos prostéticos: FMN y centros Fe-S.' },
+      { t: 'Bombea 4 H⁺ por cada par de electrones, de la matriz al espacio intermembrana.' },
+    ],
+    inhibidores: [
+      { nombre: 'Rotenona', t: 'Un insecticida natural.' },
+      { nombre: 'Amital', t: 'Un barbitúrico.' },
+    ],
+  },
+  {
+    id: 'c2', ruta: 'cadena', sigla: 'II', enzima: 'Complejo II', alias: 'Succinato deshidrogenasa (la del ciclo de Krebs)',
+    de: ['fadh2'], a: ['coq'],
+    tipo: 'Transferencia de electrones del succinato (FADH₂) a la coenzima Q',
+    notas: [
+      { t: 'Grupos prostéticos: FAD, centros Fe-S y citocromo b₅₆₀.' },
+      { t: 'Es el único complejo que no bombea protones: la diferencia de potencial entre el succinato y la coenzima Q es mínima.' },
+    ],
+    inhibidores: [{ nombre: 'Malonato', t: 'Inhibidor competitivo: se parece al succinato.' }],
+  },
+  {
+    id: 'c3', ruta: 'cadena', sigla: 'III', enzima: 'Complejo III', alias: 'Citocromo bc₁ (ubiquinona-citocromo c oxidorreductasa)',
+    de: ['coq'], a: ['citc'], bombea: 4,
+    tipo: 'Transferencia de electrones de la coenzima Q al citocromo c',
+    notas: [
+      { t: 'Grupos prostéticos: citocromos b y c₁, y un centro Fe-S.' },
+      { t: 'Bombea 4 H⁺ por cada par de electrones.' },
+    ],
+    inhibidores: [{ nombre: 'Antimicina A', t: 'Bloquea el complejo III.' }],
+  },
+  {
+    id: 'c4', ruta: 'cadena', sigla: 'IV', enzima: 'Complejo IV', alias: 'Citocromo c oxidasa',
+    de: ['citc'], a: ['agua'], gasta: ['O₂'], bombea: 2,
+    tipo: 'Reducción del O₂, el último aceptor, a agua',
+    notas: [
+      { t: 'Grupos prostéticos: citocromos a y a₃, y cobre.' },
+      { t: 'Retiene el O₂ hasta tener los cuatro electrones juntos, para que no se escapen intermediarios parciales (radicales libres).' },
+      { t: 'Bombea 2 H⁺ por cada par de electrones.' },
+    ],
+    inhibidores: [
+      { nombre: 'Cianuro y monóxido de carbono', t: 'Se unen al hierro del hemo a₃. El cianuro es tan tóxico porque frena la respiración de todas las células.' },
+      { nombre: 'Azida', plus: true, t: 'También se une al hemo a₃.' },
+    ],
+  },
+  {
+    id: 'c5', ruta: 'cadena', sigla: 'V', enzima: 'ATP sintasa',
+    de: ['adp'], a: ['atp'],
+    tipo: 'Fosforilación oxidativa: los protones que vuelven a la matriz dan la energía',
+    notas: [
+      { t: 'Teoría quimiosmótica (Mitchell): la caída de los electrones bombea protones al espacio intermembrana; como la membrana interna es impermeable a ellos, se forma un gradiente electroquímico (la fuerza protonmotriz); los protones solo pueden volver por la ATP sintasa.' },
+      { t: 'F₀ está embebida en la membrana interna y forma el canal de protones; F₁ sobresale hacia la matriz y tiene los sitios catalíticos, en sus tres subunidades β.' },
+      { t: 'Los protones hacen girar el anillo de subunidades c, como una turbina; con él gira el tallo central dentro de la cabeza F₁, que no gira, y le cambia la forma a cada subunidad β.' },
+      { t: 'Mecanismo de cambio de unión (Boyer): cada sitio pasa por tres estados. L (laxo) une ADP y Pi; T (tenso) forma el ATP; O (abierto) lo libera. Cada vuelta completa produce tres ATP.' },
+      { t: 'La energía de los protones no se usa para formar el enlace, sino para liberar el ATP ya formado.' },
+      { t: 'Con 4 H⁺ por ATP, el NADH rinde 10/4 = 2,5 y el FADH₂, 6/4 = 1,5.' },
+    ],
+    inhibidores: [
+      { nombre: 'Oligomicina', plus: true, t: 'Inhibe la ATP sintasa.' },
+      { nombre: 'Desacoplantes', plus: true, t: 'Dejan pasar protones a través de la membrana interna sin pasar por la ATP sintasa: la cadena sigue consumiendo O₂ pero no se forma ATP, y la energía se libera como calor. El 2,4-dinitrofenol se vendió como pastilla para adelgazar y causó muertes por hipertermia. La termogenina (UCP1) es un desacoplante natural del tejido adiposo pardo.' },
+    ],
+  },
+
+  /* ── Oxidación de los ácidos grasos: activación y entrada ───────────────── */
+  {
+    id: 'acs', ruta: 'betaox', enzima: 'Acil-CoA sintetasa',
+    de: ['ag'], a: ['acil_cit'], gasta: ['CoA', 'ATP'], forma: ['AMP', 'PPi'],
+    lugar: 'Citosol (membrana mitocondrial externa)',
+    tipo: 'Activación: une el ácido graso a la CoA',
+    notas: [
+      { t: 'Pasa por un intermediario acil-adenilato y forma un enlace tioéster de alta energía.' },
+      { t: 'La pirofosfatasa hidroliza el PPi: la activación cuesta dos enlaces de alta energía.' },
+    ],
+  },
+  {
+    id: 'cpt1', ruta: 'betaox', enzima: 'CPT-I', alias: 'Carnitina palmitoil transferasa I',
+    de: ['acil_cit'], a: ['acilcarnitina'], regulada: true,
+    lugar: 'Membrana mitocondrial externa',
+    tipo: 'Pasa el acilo de la CoA a la carnitina',
+    notas: [
+      { t: 'Es el paso limitante y el principal punto de regulación de la oxidación de ácidos grasos.' },
+      { t: 'La membrana interna es impermeable al acil-CoA de cadena larga: por eso hace falta la lanzadera de carnitina.' },
+    ],
+    regulacion: {
+      inhiben: ['Malonil-CoA'],
+      activan: [],
+      notas: [
+        { t: 'El malonil-CoA es el primer intermediario de la síntesis de ácidos grasos. Cuando hay glucosa e insulina de sobra, impide que los ácidos grasos entren a la mitocondria a oxidarse.' },
+        { t: 'En el ayuno, el glucagón y la adrenalina inactivan la acetil-CoA carboxilasa (por PKA y por la AMPK): baja el malonil-CoA, la CPT-I queda libre y se oxidan ácidos grasos. Después de comer, la insulina hace lo contrario.' },
+        { t: 'Por eso la CPT-I es también clave en la regulación de la cetogénesis.' },
+      ],
+    },
+    inhibidores: [
+      { nombre: 'Deficiencia de carnitina o de CPT-I', plus: true, t: 'Impide oxidar ácidos grasos: en el ayuno aparecen hipoglucemia sin cetonas, debilidad muscular y acumulación de grasa.' },
+    ],
+  },
+  {
+    id: 'cpt2', ruta: 'betaox', enzima: 'Translocasa y CPT-II',
+    de: ['acilcarnitina'], a: ['acil_m'],
+    rot: { x: 1288, y: 900, ancla: 'start' },
+    lugar: 'Membrana mitocondrial interna',
+    tipo: 'Entrada a la matriz y devolución del acilo a una CoA',
+    notas: [
+      { t: 'Una translocasa de la membrana interna lleva la acil-carnitina a la matriz, a cambio de carnitina libre.' },
+      { t: 'La CPT-II, en la cara interna, devuelve el acilo a una CoA de la matriz: queda acil-CoA listo para oxidarse.' },
+    ],
+  },
+
+  /* ── β-oxidación: las cuatro reacciones de cada vuelta ──────────────────── */
+  {
+    id: 'acad', ruta: 'betaox', paso: 1, enzima: 'Acil-CoA deshidrogenasa',
+    de: ['acil_m'], a: ['enoil'], gasta: ['FAD'], forma: ['FADH₂'],
+    rot: { x: 1352, y: 1132, ancla: 'start' },
+    lugar: 'Matriz mitocondrial',
+    tipo: 'Oxidación: forma un doble enlace trans entre C-2 y C-3',
+    notas: [
+      { t: 'Se llama β-oxidación porque se oxida el carbono beta (C-3). Cada vuelta tiene cuatro reacciones y saca dos carbonos del extremo carboxilo como acetil-CoA.' },
+      { t: 'Su FADH₂ cede los electrones directamente a la coenzima Q.' },
+      { t: 'Es la misma secuencia química que en el ciclo de Krebs lleva de succinato a oxalacetato: oxidación con FAD, hidratación, oxidación con NAD⁺.' },
+    ],
+    inhibidores: [
+      { nombre: 'Deficiencia de la acil-CoA deshidrogenasa de cadena media', plus: true, t: 'Impide oxidar ácidos grasos: hipoglucemia sin cetonas en el ayuno.' },
+    ],
+  },
+  {
+    id: 'ech', ruta: 'betaox', paso: 2, enzima: 'Enoil-CoA hidratasa',
+    de: ['enoil'], a: ['hidroxiacil'], gasta: ['H₂O'],
+    rot: { x: 1352, y: 1272, ancla: 'start' },
+    lugar: 'Matriz mitocondrial',
+    tipo: 'Hidratación: agrega agua al doble enlace',
+  },
+  {
+    id: 'hadh', ruta: 'betaox', paso: 3, enzima: '3-Hidroxiacil-CoA deshidrogenasa',
+    de: ['hidroxiacil'], a: ['cetoacil'], gasta: ['NAD⁺'], forma: ['NADH'],
+    rot: { x: 1188, y: 1272, ancla: 'end' },
+    lugar: 'Matriz mitocondrial',
+    tipo: 'Oxidación del OH a cetona',
+    regulacion: { inhiben: ['Cociente NADH/NAD⁺ alto'], activan: [] },
+  },
+  {
+    id: 'tiolasa', ruta: 'betaox', paso: 4, enzima: 'Tiolasa',
+    de: ['cetoacil'], a: ['acil_m', 'acetilcoa'], gasta: ['CoA'],
+    rot: { x: 1188, y: 1132, ancla: 'end' },
+    lugar: 'Matriz mitocondrial',
+    tipo: 'Tiólisis: una CoA corta entre C-2 y C-3',
+    notas: [
+      { t: 'Da acetil-CoA y un acil-CoA con dos carbonos menos, que empieza otra vuelta.' },
+      { t: 'Palmitato (16 C): 7 vueltas dan 8 acetil-CoA + 7 FADH₂ + 7 NADH. El acetil-CoA va al ciclo de Krebs y el FADH₂ y el NADH, a la cadena respiratoria.' },
+      { plus: true, t: 'Cadena impar: la última vuelta deja propionil-CoA (3 C). La propionil-CoA carboxilasa (con biotina) y la metilmalonil-CoA mutasa (con vitamina B₁₂) lo convierten en succinil-CoA: es la única parte de un ácido graso que sirve para la gluconeogénesis.' },
+      { plus: true, t: 'Insaturados: sus dobles enlaces cis necesitan una isomerasa (y una reductasa con NADPH si hay dos). Cadena muy larga (más de 22 C) y ramificados: la β-oxidación empieza en los peroxisomas, con una oxidasa que forma H₂O₂.' },
+    ],
+    regulacion: { inhiben: ['Acetil-CoA alto'], activan: [] },
+  },
+
+  /* ── Cuerpos cetónicos ──────────────────────────────────────────────────── */
+  {
+    id: 'tiolasa_c', ruta: 'cetogenesis', paso: 1, enzima: 'Tiolasa',
+    de: ['acetilcoa'], a: ['acetoacetil'], reversible: true, rotulo: 'arriba',
+    lugar: 'Matriz mitocondrial del hígado',
+    tipo: 'Une 2 acetil-CoA',
+    notas: [
+      { t: 'La cetogénesis ocurre cuando llega más acetil-CoA del que el ciclo de Krebs puede oxidar: en el ayuno prolongado y en la diabetes no controlada.' },
+      { t: 'El hígado oxida muchos ácidos grasos y a la vez usa el oxalacetato para la gluconeogénesis. Sin oxalacetato, el acetil-CoA no puede entrar al ciclo de Krebs y se desvía a cuerpos cetónicos.' },
+      { t: 'En la cetólisis trabaja al revés: corta el acetoacetil-CoA en 2 acetil-CoA.' },
+    ],
+  },
+  {
+    id: 'hmgs', ruta: 'cetogenesis', paso: 2, enzima: 'HMG-CoA sintasa', alias: 'la isoforma mitocondrial',
+    de: ['acetoacetil'], a: ['hmgcoa'], gasta: ['Acetil-CoA'], regulada: true, rotulo: 'arriba',
+    lugar: 'Matriz mitocondrial del hígado',
+    tipo: 'Agrega otro acetil-CoA',
+    notas: [
+      { t: 'Es el paso regulado de la cetogénesis.' },
+      { t: 'Es una isoforma distinta de la citosólica, que participa en la síntesis de colesterol.' },
+    ],
+  },
+  {
+    id: 'hmgl', ruta: 'cetogenesis', paso: 3, enzima: 'HMG-CoA liasa',
+    de: ['hmgcoa'], a: ['acetoacetato'], forma: ['Acetil-CoA'], rotulo: 'arriba',
+    lugar: 'Matriz mitocondrial del hígado',
+    tipo: 'Rompe el HMG-CoA',
+  },
+  {
+    id: 'bhbdh', ruta: 'cetogenesis', paso: 4, enzima: 'β-Hidroxibutirato deshidrogenasa',
+    de: ['acetoacetato'], a: ['bhb'], gasta: ['NADH'], forma: ['NAD⁺'], reversible: true, lado: 'izq',
+    lugar: 'Matriz mitocondrial',
+    tipo: 'Reducción del acetoacetato',
+    notas: [{ t: 'En los tejidos que usan cuerpos cetónicos trabaja al revés: el β-hidroxibutirato vuelve a acetoacetato, con NAD⁺.' }],
+  },
+
+  /* ── Síntesis de ácidos grasos ──────────────────────────────────────────── */
+  {
+    id: 'acl', ruta: 'lipogenesis', paso: 1, enzima: 'ATP-citrato liasa',
+    de: ['citrato'], a: ['accoa_cit'], gasta: ['ATP'], forma: ['Oxalacetato'],
+    rot: { x: 880, y: 885, ancla: 'start' },
+    lugar: 'Citosol',
+    tipo: 'Rompe el citrato en acetil-CoA y oxalacetato',
+    notas: [
+      { t: 'El acetil-CoA no atraviesa la membrana interna: sale como citrato, que se forma cuando sobran acetil-CoA y ATP.' },
+      { t: 'El oxalacetato vuelve a la mitocondria, como malato o como piruvato. En ese camino, la enzima málica genera NADPH.' },
+    ],
+  },
+  {
+    id: 'acc', ruta: 'lipogenesis', paso: 2, enzima: 'Acetil-CoA carboxilasa',
+    de: ['accoa_cit'], a: ['malonil'], gasta: ['ATP', 'HCO₃⁻'], forma: ['ADP'], regulada: true,
+    lugar: 'Citosol',
+    tipo: 'Carboxilación, con biotina',
+    notas: [{ t: 'Es el paso limitante y regulado de la síntesis de ácidos grasos.' }],
+    regulacion: {
+      inhiben: ['Palmitoil-CoA (el producto)'],
+      activan: ['Citrato (señal de que sobran acetil-CoA y ATP)'],
+      notas: [
+        { t: 'Covalente: la insulina la desfosforila y la activa; el glucagón y la adrenalina (por PKA) y la AMPK la fosforilan y la inactivan. Por eso la epinefrina y el glucagón inhiben la lipogénesis.' },
+      ],
+    },
+  },
+  {
+    id: 'fas', ruta: 'lipogenesis', paso: 3, enzima: 'Ácido graso sintasa',
+    de: ['malonil'], a: ['palmitato'], gasta: ['NADPH'], forma: ['CO₂'],
+    lugar: 'Citosol',
+    tipo: 'Ensamblaje: agrega dos carbonos por vuelta',
+    notas: [
+      { t: 'Es un complejo multienzimático: en los animales, un dímero de cadenas con siete actividades, una de ellas la proteína transportadora de acilos (ACP), que lleva el sustrato de un sitio activo a otro con un brazo de fosfopanteteína.' },
+      { t: 'Cada vuelta tiene cuatro pasos: condensación (sale CO₂), reducción con NADPH, deshidratación y reducción con NADPH. Después de 7 vueltas, una tioesterasa libera el palmitato.' },
+      { t: 'Balance: 8 acetil-CoA + 7 ATP + 14 NADPH dan palmitato. El NADPH sale de la vía de las pentosas y de la enzima málica. La síntesis no produce ATP: lo consume.' },
+      { t: 'No es la β-oxidación al revés: ocurre en el citosol, el transportador del acilo es la ACP (no la CoA), la unidad de dos carbonos entra como malonil-CoA y la coenzima es el NADPH.' },
+    ],
+  },
 ];
 
 /* Lo que muestra el panel cuando no hay nada elegido: los balances. */
@@ -536,6 +837,30 @@ BALANCES.push(
   },
 );
 
+BALANCES.push(
+  {
+    ruta: 'cadena', titulo: 'Cadena respiratoria',
+    ecuacion: ['NADH o FADH₂ + O₂', 'H₂O + gradiente de H⁺'],
+    notas: [
+      'Por cada par de electrones, el NADH bombea 10 H⁺ y el FADH₂, 6.',
+      'Si se bloquea cualquier complejo, los transportadores anteriores quedan reducidos y los posteriores, oxidados: el flujo de electrones se corta.',
+    ],
+  },
+  {
+    ruta: 'betaox', titulo: 'β-oxidación del palmitato',
+    ecuacion: ['Palmitoil-CoA, 7 vueltas', '8 acetil-CoA + 7 FADH₂ + 7 NADH'],
+    notas: [
+      '106 ATP por palmitato (129 con los valores clásicos), ya restados los 2 enlaces de la activación.',
+      'Por gramo, un ácido graso rinde más del doble que la glucosa, porque está mucho más reducido.',
+    ],
+  },
+  {
+    ruta: 'lipogenesis', titulo: 'Síntesis de palmitato',
+    ecuacion: ['8 acetil-CoA + 7 ATP + 14 NADPH', 'Palmitato'],
+    notas: ['En el citosol, cuando sobran glúcidos: hígado, tejido adiposo y glándula mamaria.'],
+  },
+);
+
 export const RENDIMIENTO = {
   filas: [
     ['Glucólisis', '2 ATP netos', '2'],
@@ -566,8 +891,9 @@ export function rasgos(r) {
   const tiene = (lista, ...que) => (lista || []).some((x) => que.includes(x));
   return {
     gastaAtp: tiene(r.gasta, 'ATP', 'GTP', 'UTP'),
-    formaAtp: tiene(r.forma, 'ATP', 'GTP'),
+    formaAtp: tiene(r.forma, 'ATP', 'GTP') || r.a.includes('atp'),
     reductor: tiene(r.forma, 'NADH', 'FADH₂', 'NADPH'),
+    bombea: !!r.bombea,
     co2: tiene(r.forma, 'CO₂'),
     irreversible: !!r.irreversible,
     regulada: !!r.regulada,
@@ -577,4 +903,4 @@ export function rasgos(r) {
 
 export const lugarDe = (r) => r.lugar || RUTAS[r.ruta].lugar;
 
-export const etiquetaPaso = (r) => (r.paso ? `${RUTAS[r.ruta].nombre} · paso ${r.paso}` : RUTAS[r.ruta].nombre);
+export const etiquetaPaso = (r) => (r.sigla ? `${RUTAS[r.ruta].nombre} · ${r.sigla}` : r.paso ? `${RUTAS[r.ruta].nombre} · paso ${r.paso}` : RUTAS[r.ruta].nombre);

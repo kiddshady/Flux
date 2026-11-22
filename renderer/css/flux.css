@@ -19,6 +19,11 @@
   --fx-gng:   oklch(80% .11 178);    /* gluconeogénesis */
   --fx-pen:   oklch(77% .12 295);    /* vía de las pentosas */
   --fx-gno:   oklch(80% .12 50);     /* glucógeno */
+  --fx-box:   oklch(85% .13 112);    /* oxidación de ácidos grasos */
+  --fx-cet:   oklch(76% .11 28);     /* cuerpos cetónicos */
+  --fx-lip:   oklch(78% .12 350);    /* síntesis de ácidos grasos */
+  --fx-cad:   oklch(76% .11 250);    /* cadena respiratoria */
+  --fx-h:     oklch(78% .11 250);    /* protones bombeados */
   --fx-linea: rgb(255 255 255 / .40);
   --fx-tapa:  rgb(24 24 26);         /* lo que tapa la flecha debajo de una insignia */
 }
@@ -107,6 +112,8 @@
 .fx-cof--atp   { fill: var(--fx-atp); }
 .fx-cof--red   { fill: var(--fx-red); }
 .fx-cof--co2   { fill: var(--op-text-3); }
+.fx-cof--h     { fill: var(--fx-h); }
+.fx-insignia__n--sigla { font-size: 9.5px; letter-spacing: -.02em; }
 
 .fx-rx:hover { --fx-c: rgb(255 255 255 / .78); }
 .fx-rx:hover .fx-enzima,
@@ -146,14 +153,23 @@
 .fx-mapa[data-capa="vias"] .fx-rx--gluconeogenesis { --fx-c: var(--fx-gng); }
 .fx-mapa[data-capa="vias"] .fx-rx--pentosas { --fx-c: var(--fx-pen); }
 .fx-mapa[data-capa="vias"] .fx-rx--glucogeno { --fx-c: var(--fx-gno); }
+.fx-mapa[data-capa="vias"] .fx-rx--betaox { --fx-c: var(--fx-box); }
+.fx-mapa[data-capa="vias"] .fx-rx--cetogenesis { --fx-c: var(--fx-cet); }
+.fx-mapa[data-capa="vias"] .fx-rx--lipogenesis { --fx-c: var(--fx-lip); }
+.fx-mapa[data-capa="vias"] .fx-rx--cadena { --fx-c: var(--fx-cad); }
+.fx-mapa[data-capa="vias"] .fx-rx--betaox .fx-tramo,
+.fx-mapa[data-capa="vias"] .fx-rx--cetogenesis .fx-tramo,
+.fx-mapa[data-capa="vias"] .fx-rx--lipogenesis .fx-tramo,
+.fx-mapa[data-capa="vias"] .fx-rx--cadena .fx-tramo,
 .fx-mapa[data-capa="vias"] .fx-rx--gluconeogenesis .fx-tramo,
 .fx-mapa[data-capa="vias"] .fx-rx--pentosas .fx-tramo,
 .fx-mapa[data-capa="vias"] .fx-rx--glucogeno .fx-tramo { stroke-width: 2.4; }
 
+.fx-mapa[data-capa="energia"] .fx-rx.bombea { --fx-c: var(--fx-h); }
 .fx-mapa[data-capa="energia"] .fx-rx.da-reductor { --fx-c: var(--fx-red); }
 .fx-mapa[data-capa="energia"] .fx-rx.forma-atp   { --fx-c: var(--fx-atp); }
 .fx-mapa[data-capa="energia"] .fx-rx.gasta-atp   { --fx-c: var(--fx-gasto); }
-.fx-mapa[data-capa="energia"] .fx-rx:not(.da-reductor):not(.forma-atp):not(.gasta-atp):not(.is-elegida) { opacity: .38; }
+.fx-mapa[data-capa="energia"] .fx-rx:not(.da-reductor):not(.forma-atp):not(.gasta-atp):not(.bombea):not(.is-elegida) { opacity: .38; }
 
 .fx-mapa[data-capa="regulacion"] .fx-rx.es-regulada { --fx-c: var(--fx-reg); }
 .fx-mapa[data-capa="regulacion"] .fx-rx.es-regulada .fx-tramo { stroke-width: 2.6; }
@@ -175,7 +191,7 @@
   box-shadow: var(--op-sheet), var(--op-e2);
   border-radius: var(--op-r-lg);
 }
-.fx-leyenda { left: 14px; gap: var(--op-4); padding: 8px 12px; min-height: 34px; font-size: var(--op-fs-11); color: var(--op-text-2); }
+.fx-leyenda { left: 14px; right: 150px; width: fit-content; flex-wrap: wrap; row-gap: 6px; gap: var(--op-4); padding: 8px 12px; min-height: 34px; font-size: var(--op-fs-11); color: var(--op-text-2); }
 .fx-zoom { right: 14px; gap: 2px; padding: 4px; }
 .fx-ley { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
 .fx-ley__marca { width: 16px; height: 3px; border-radius: 2px; background: var(--fx-linea); }
@@ -189,6 +205,11 @@
 .fx-ley--gng   { background: var(--fx-gng); }
 .fx-ley--pen   { background: var(--fx-pen); }
 .fx-ley--gno   { background: var(--fx-gno); }
+.fx-ley--box   { background: var(--fx-box); }
+.fx-ley--cet   { background: var(--fx-cet); }
+.fx-ley--lip   { background: var(--fx-lip); }
+.fx-ley--cad   { background: var(--fx-cad); }
+.fx-ley--h     { background: var(--fx-h); }
 
 /* ── La ficha (panel derecho) ──────────────────────────────────────────────── */
 

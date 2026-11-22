@@ -48,14 +48,15 @@ function punta(p, ux, uy, t = 7) {
 
 /* Lo que una reacción muestra al lado de su flecha: solo lo que importa para
    seguir la energía. El resto (ADP, CoA, Pi, agua) está en la ficha. */
-const VISIBLES_GASTA = ['ATP', 'GTP', 'UTP', 'NADH'];
+const VISIBLES_GASTA = ['ATP', 'GTP', 'UTP', 'NADH', 'NADPH', 'O₂'];
 const VISIBLES_FORMA = ['ATP', 'GTP', 'NADH', 'FADH₂', 'NADPH', 'CO₂'];
 const CLASE_COF = { ATP: 'atp', GTP: 'atp', NADH: 'red', 'FADH₂': 'red', NADPH: 'red', 'CO₂': 'co2' };
 
 function cofactores(r) {
   const partes = [];
-  for (const g of r.gasta || []) if (VISIBLES_GASTA.includes(g)) partes.push({ t: `− ${g}`, c: g === 'NADH' ? 'red' : 'gasto' });
+  for (const g of r.gasta || []) if (VISIBLES_GASTA.includes(g)) partes.push({ t: `− ${g}`, c: g === 'NADH' || g === 'NADPH' ? 'red' : g === 'O₂' ? 'co2' : 'gasto' });
   for (const f of r.forma || []) if (VISIBLES_FORMA.includes(f)) partes.push({ t: `+ ${f}`, c: CLASE_COF[f] });
+  if (r.bombea) partes.push({ t: `${r.bombea} H⁺ afuera`, c: 'h' });
   return partes;
 }
 
@@ -66,8 +67,9 @@ function textoCof(partes, x, y, ancla) {
 }
 
 function insignia(r, p) {
-  return r.paso
-    ? `<circle class="fx-insignia" cx="${n1(p.x)}" cy="${n1(p.y)}" r="10"/><text class="fx-insignia__n" x="${n1(p.x)}" y="${n1(p.y + 3.8)}" text-anchor="middle">${r.paso}</text>`
+  const marca = r.sigla || r.paso;   // el número del paso, o el romano del complejo
+  return marca
+    ? `<circle class="fx-insignia" cx="${n1(p.x)}" cy="${n1(p.y)}" r="10"/><text class="fx-insignia__n${r.sigla ? ' fx-insignia__n--sigla' : ''}" x="${n1(p.x)}" y="${n1(p.y + 3.8)}" text-anchor="middle">${marca}</text>`
     : `<circle class="fx-insignia fx-insignia--chica" cx="${n1(p.x)}" cy="${n1(p.y)}" r="5"/>`;
 }
 
@@ -160,7 +162,7 @@ function dibujarReaccion(r) {
   const g = rasgos(r);
   const clases = ['fx-rx', `fx-rx--${r.ruta}`, r.tambien && `fx-rx--${r.tambien}`,
     g.gastaAtp && 'gasta-atp', g.formaAtp && 'forma-atp', g.reductor && 'da-reductor',
-    g.irreversible && 'es-irreversible', g.regulada && 'es-regulada', g.inhibida && 'tiene-inhibidor',
+    g.irreversible && 'es-irreversible', g.bombea && 'bombea', g.regulada && 'es-regulada', g.inhibida && 'tiene-inhibidor',
   ].filter(Boolean).join(' ');
 
   // La zona que recibe el click es más ancha que la flecha: 2 px no se aciertan.
@@ -188,6 +190,16 @@ function dibujar() {
       <text class="fx-fase" x="60" y="560">Fase de beneficio</text>
       <text class="fx-fase__sub" x="60" y="576">4 ATP y 2 NADH</text>
       <text class="fx-fase__sub" x="60" y="592">desde acá, todo por dos</text>
+      <text class="fx-fase" x="940" y="530" text-anchor="middle">Síntesis de ácidos grasos</text>
+      <text class="fx-fase__sub" x="940" y="546" text-anchor="middle">cuando sobran glúcidos</text>
+      <text class="fx-fase" x="1270" y="510" text-anchor="middle">Oxidación de ácidos grasos</text>
+      <text class="fx-fase__sub" x="1270" y="526" text-anchor="middle">activación y entrada a la mitocondria</text>
+      <text class="fx-centro" x="1270" y="1196" text-anchor="middle">β-oxidación</text>
+      <text class="fx-centro__sub" x="1270" y="1214" text-anchor="middle">2 C menos por vuelta</text>
+      <text class="fx-fase" x="800" y="1050" text-anchor="middle">Cuerpos cetónicos</text>
+      <text class="fx-fase__sub" x="800" y="1066" text-anchor="middle">en el hígado</text>
+      <text class="fx-fase" x="60" y="1590">Cadena respiratoria</text>
+      <text class="fx-fase__sub" x="60" y="1606">membrana interna</text>
       <text class="fx-centro" x="${ANILLO.cx}" y="${ANILLO.cy - 4}" text-anchor="middle">Ciclo de Krebs</text>
       <text class="fx-centro__sub" x="${ANILLO.cx}" y="${ANILLO.cy + 14}" text-anchor="middle">3 NADH, 1 FADH₂ y 1 GTP por vuelta</text>
     </g>
@@ -239,7 +251,7 @@ export function montarMapa(host, { onElegir, capa = 'ruta', vista = null } = {})
        legible y centrado: lo que queda afuera se alcanza arrastrando. */
     const { w } = tam();
     v.k = Math.min(1.1, Math.max(K_LEGIBLE, (w - 48) / LIENZO.w));
-    v.tx = (w - LIENZO.w * v.k) / 2;
+    v.tx = LIENZO.w * v.k + 48 <= w ? (w - LIENZO.w * v.k) / 2 : w / 2 - LIENZO.eje * v.k;
     v.ty = 24;
     v.fit = true;
     aplicar(viajando);

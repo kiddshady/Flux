@@ -22,8 +22,8 @@ const api = window.opal;
 
 const CAPAS = [
   { id: 'ruta', label: 'Ruta', leyenda: [['fx-ley--linea', 'Reacción'], ['fx-ley--irr', 'Irreversible']] },
-  { id: 'vias', label: 'Vías', leyenda: [['fx-ley--linea', 'Glucólisis y Krebs'], ['fx-ley--gng', 'Gluconeogénesis'], ['fx-ley--pen', 'Pentosas'], ['fx-ley--gno', 'Glucógeno']] },
-  { id: 'energia', label: 'Energía', leyenda: [['fx-ley--gasto', 'Gasta ATP, GTP o UTP'], ['fx-ley--atp', 'Forma ATP o GTP'], ['fx-ley--red', 'Da NADH, FADH₂ o NADPH']] },
+  { id: 'vias', label: 'Vías', leyenda: [['fx-ley--linea', 'Glucólisis y Krebs'], ['fx-ley--gng', 'Gluconeogénesis'], ['fx-ley--pen', 'Pentosas'], ['fx-ley--gno', 'Glucógeno'], ['fx-ley--box', 'Oxidación de ácidos grasos'], ['fx-ley--cet', 'Cuerpos cetónicos'], ['fx-ley--lip', 'Síntesis de ácidos grasos'], ['fx-ley--cad', 'Cadena respiratoria']] },
+  { id: 'energia', label: 'Energía', leyenda: [['fx-ley--gasto', 'Gasta ATP, GTP o UTP'], ['fx-ley--atp', 'Forma ATP o GTP'], ['fx-ley--red', 'Da NADH, FADH₂ o NADPH'], ['fx-ley--h', 'Bombea H⁺']] },
   { id: 'regulacion', label: 'Regulación', leyenda: [['fx-ley--reg', 'Paso regulado']] },
   { id: 'inhibidores', label: 'Inhibidores', leyenda: [['fx-ley--inh', 'Tiene inhibidor o clínica']] },
 ];
@@ -68,7 +68,7 @@ const leyendaHTML = (capa) => (CAPAS.find((c) => c.id === capa) || CAPAS[0]).ley
 function viewMapa() {
   paint(head({
     title: 'Mapa',
-    sub: 'Glucólisis, gluconeogénesis, pentosas, glucógeno y ciclo de Krebs',
+    sub: 'Glúcidos, lípidos, ciclo de Krebs y cadena respiratoria',
     actions: `<div class="op-segmented" id="fx-capas" aria-label="Capa">${CAPAS.map((c) =>
       `<button class="op-segmented__opt${c.id === S.capa ? ' is-active' : ''}" data-value="${c.id}">${esc(c.label)}</button>`).join('')}</div>`,
   }) + `
@@ -109,7 +109,7 @@ function viewMapa() {
 
 /* ══ Vista: Enzimas ══════════════════════════════════════════════════════════ */
 
-const ORDEN_RUTAS = ['glucolisis', 'fermentacion', 'gluconeogenesis', 'pentosas', 'glucogeno', 'puente', 'anaplerotica', 'krebs'];
+const ORDEN_RUTAS = ['glucolisis', 'fermentacion', 'gluconeogenesis', 'pentosas', 'glucogeno', 'puente', 'anaplerotica', 'krebs', 'cadena', 'betaox', 'cetogenesis', 'lipogenesis'];
 
 /** Minúsculas y sin acentos: «glucolisis» encuentra «Glucólisis». */
 const plano = (s) => String(s).normalize('NFD').replace(/\p{Mn}/gu, '').toLowerCase();
@@ -334,7 +334,7 @@ function updateChrome() {
   document.getElementById('stat-met').textContent = METABOLITOS.length;
   const capa = CAPAS.find((c) => c.id === S.capa) || CAPAS[0];
   const pie = document.getElementById('rail-foot');
-  if (pie && S.info) pie.innerHTML = `<span class="op-meta">Química Biológica · U5 y U7</span><span class="op-meta op-dim">v${esc(S.info.version)}</span>`;
+  if (pie && S.info) pie.innerHTML = `<span class="op-meta">Química Biológica · U5, U7 y U8</span><span class="op-meta op-dim">v${esc(S.info.version)}</span>`;
   swap(document.getElementById('stat-capa'), esc(capa.label), { fundido: true });
 
   let html = '';

@@ -1,0 +1,1 @@
+- **Ícono nuevo:** un nudo de trébol, un solo cuerpo que se entrelaza consigo mismo y no tiene principio ni fin. Es el mismo dibujo en el ícono, en la marca de la ventana y en la pantalla de carga.

@@ -8,7 +8,7 @@
    geometría (x, y) está en unidades del lienzo del mapa (ver mapa.js).
    ═══════════════════════════════════════════════════════════════════════════ */
 
-export const LIENZO = { w: 2100, h: 1850, eje: 520 };
+export const LIENZO = { w: 2100, h: 2180, eje: 520, mito: { x: 36, y: 948, w: 1488, h: 888 } };
 
 /* El anillo de Krebs: ocho metabolitos cada 45°, medidos en sentido horario
    desde arriba. El paso 1 (citrato sintasa) queda justo arriba, donde entra
@@ -33,12 +33,15 @@ export const RUTAS = {
   lipogenesis: { nombre: 'Síntesis de ácidos grasos', lugar: 'Citosol', unidad: 'U8', seccion: 'La síntesis de ácidos grasos' },
   colesterol: { nombre: 'Síntesis de colesterol', lugar: 'Citosol y retículo endoplasmático liso', unidad: 'U8', seccion: 'El colesterol' },
   lipoproteinas: { nombre: 'Lipoproteínas', lugar: 'Plasma', unidad: 'U8', seccion: 'Las lipoproteínas' },
+  nitrogeno: { nombre: 'Grupo amino', lugar: 'Hígado', unidad: 'U9', seccion: 'El catabolismo de los aminoácidos: el grupo amino' },
+  urea: { nombre: 'Ciclo de la urea', lugar: 'Hígado', unidad: 'U9', seccion: 'El ciclo de la urea' },
   anaplerotica: { nombre: 'Reacción anaplerótica', lugar: 'Matriz mitocondrial', unidad: 'U5', seccion: 'Un ciclo anfibólico' },
 };
 
 /* Los PDF de los apuntes, relativos a la carpeta de teoría (ajuste `apuntesDir`). */
 export const APUNTES = {
   U5: { titulo: 'U5 · Metabolismo energético', pdf: 'U5 metabolismo energético/U5 - Metabolismo energético.pdf' },
+  U9: { titulo: 'U9 · Metabolismo nitrogenado', pdf: 'U9 metabolismo nitrogenado/U9 - Metabolismo nitrogenado.pdf' },
   U8: { titulo: 'U8 · Lípidos y su metabolismo', pdf: 'U8 lípidos y su metabolismo/U8 - Lípidos y su metabolismo.pdf' },
   U7: { titulo: 'U7 · Hidratos de carbono y su metabolismo', pdf: 'U7 hidratos de carbono y su metabolismo/U7 - Hidratos de carbono y su metabolismo.pdf' },
 };
@@ -228,6 +231,53 @@ export const METABOLITOS = [
       { t: 'Densidad 1,063 a 1,210 g/mL; 55 % de proteína; fosfolípidos y ésteres de colesterol. Es la más chica y densa; migra como alfa.' },
       { t: 'El «colesterol bueno»: hace el transporte reverso, saca colesterol de los tejidos y lo lleva al hígado.' },
       { t: 'Es el depósito de apolipoproteínas: las C y la E pasan de una lipoproteína a otra, sobre todo desde la HDL. Las B-48 y B-100 no se transfieren (hay una por partícula).' },
+    ] },
+  /* ── El grupo amino ─────────────────────────────────────────────────────── */
+  { id: 'aminoacido', nombre: 'Aminoácido', x: 1000, y: 1590, clase: 'Cualquiera de los 20',
+    notas: [
+      { t: 'Sin el grupo amino, los 20 aminoácidos dan siete productos, que entran al ciclo de Krebs o se relacionan con él: piruvato, acetil-CoA, acetoacetil-CoA, α-cetoglutarato, succinil-CoA, fumarato y oxalacetato.' },
+      { t: 'Glucogénicos: dan piruvato o intermediarios del ciclo de Krebs, que pueden llegar a glucosa. Son todos menos la leucina y la lisina.' },
+      { t: 'Cetogénicos: dan acetil-CoA o acetoacetil-CoA, que no pueden dar glucosa y forman cuerpos cetónicos. Solo cetogénicos: leucina y lisina. Mixtos: isoleucina, fenilalanina, tirosina, triptófano y treonina.' },
+      { t: 'Esenciales (hay que comerlos): histidina, isoleucina, leucina, lisina, metionina, fenilalanina, treonina, triptófano y valina.' },
+      { t: 'Fenilcetonuria: falta la fenilalanina hidroxilasa (fenilalanina a tirosina, con tetrahidrobiopterina). Se acumula fenilalanina, que se desvía a fenilpiruvato y daña el cerebro en desarrollo; la tirosina se vuelve esencial. Se detecta con la pesquisa neonatal y se trata con una dieta pobre en fenilalanina desde el nacimiento.' },
+      { plus: true, t: 'Los de cadena ramificada (leucina, isoleucina, valina) se degradan sobre todo en el músculo. Su deshidrogenasa usa los mismos cinco cofactores que la piruvato deshidrogenasa; si falta, es la enfermedad de la orina con olor a jarabe de arce.' },
+    ] },
+  { id: 'glutamato', nombre: 'Glutamato', c: 5, x: 1180, y: 1590,
+    salidas: ['GABA (glutamato descarboxilasa, con PLP): el principal neurotransmisor inhibitorio, disminuido en la epilepsia.', 'Glutatión.', 'Glutamina, prolina y arginina.'],
+    notas: [{ t: 'El nitrógeno de muchos aminoácidos se concentra en él: es el punto de encuentro de las transaminaciones.' }] },
+  { id: 'glutamina', nombre: 'Glutamina', c: 5, x: 1180, y: 1460,
+    notas: [
+      { t: 'Es la forma no tóxica en que la mayoría de los tejidos, incluido el cerebro, mandan el amoníaco al hígado. Es el aminoácido más abundante en la sangre.' },
+      { t: 'Dona su nitrógeno amídico a muchas biosíntesis: purinas, pirimidinas, aminoazúcares y asparagina.' },
+      { t: 'El músculo usa además la alanina (ciclo glucosa-alanina): pasa los grupos amino al piruvato por la ALT; en el hígado la alanina vuelve a piruvato, el nitrógeno va a la urea y el piruvato, a la gluconeogénesis. Es parecido al ciclo de Cori, pero además lleva nitrógeno.' },
+    ] },
+  { id: 'nh4', nombre: 'Amonio (NH₄⁺)', x: 1420, y: 1590, clase: 'Tóxico, sobre todo para el cerebro',
+    notas: [
+      { t: 'Su concentración en sangre se mantiene muy baja. Otras fuentes: la glutaminasa, las serina y treonina deshidratasas (con PLP) y las bacterias intestinales.' },
+      { t: 'Por qué es tóxico: en el cerebro, el exceso se elimina formando glutamina en los astrocitos. La glutamina se acumula, arrastra agua y produce edema cerebral; además se agotan el glutamato y el α-cetoglutarato (y con ellos el ciclo de Krebs y el GABA).' },
+      { t: 'Hiperamonemia (insuficiencia hepática o defectos del ciclo de la urea): temblor, confusión, vómitos, letargo y coma. Es la encefalopatía hepática.' },
+      { plus: true, t: 'Se trata con dieta pobre en proteínas y con lactulosa, que acidifica el colon, atrapa el amoníaco como NH₄⁺ y disminuye las bacterias que lo producen.' },
+    ] },
+
+  /* ── Ciclo de la urea ───────────────────────────────────────────────────── */
+  { id: 'carbamoilp', nombre: 'Carbamoil fosfato', c: 1, x: 1420, y: 1700 },
+  { id: 'ornitina', nombre: 'Ornitina', c: 5, x: 1250, y: 1760,
+    notas: [{ t: 'Se regenera en cada vuelta y vuelve a la mitocondria: funciona como el oxalacetato en el ciclo de Krebs.' }] },
+  { id: 'citrulina', nombre: 'Citrulina', c: 6, x: 1420, y: 1900,
+    notas: [{ t: 'Se forma en la matriz y sale al citosol.' }] },
+  { id: 'aspartato', nombre: 'Aspartato', c: 4, x: 1335, y: 2110,
+    notas: [
+      { t: 'Aporta el segundo nitrógeno de la urea.' },
+      { t: 'Bicicleta de Krebs: el fumarato que sale del ciclo de la urea pasa a malato y a oxalacetato (con NADH); el oxalacetato, por transaminación (AST), se convierte otra vez en aspartato.' },
+    ] },
+  { id: 'argsucc', nombre: 'Argininosuccinato', c: 10, x: 1250, y: 2040 },
+  { id: 'arginina', nombre: 'Arginina', c: 6, x: 1080, y: 1900,
+    salidas: ['Óxido nítrico.', 'Creatina.'],
+    notas: [{ t: 'Se sintetiza en el ciclo de la urea, pero en el crecimiento no alcanza: es condicionalmente esencial.' }] },
+  { id: 'urea', nombre: 'Urea', c: 1, x: 900, y: 1900,
+    notas: [
+      { t: 'Una molécula neutra, soluble y no tóxica que se excreta por la orina.' },
+      { t: 'De sus dos nitrógenos, uno viene del amonio y el otro del aspartato; el carbono viene del bicarbonato.' },
     ] },
 ];
 
@@ -852,7 +902,7 @@ export const REACCIONES = [
   {
     id: 'hmgs_cit', ruta: 'colesterol', paso: 1, enzima: 'Tiolasa y HMG-CoA sintasa', alias: 'la isoforma citosólica',
     de: ['accoa_cit'], a: ['hmg_cit'],
-    rot: { x: 1450, y: 856, ancla: 'middle' },
+    rot: { x: 1450, y: 856, ancla: 'middle' }, insigniaEn: 0.72,
     lugar: 'Citosol',
     tipo: 'Tres acetil-CoA forman HMG-CoA',
     notas: [{ t: 'La HMG-CoA sintasa citosólica es una isoforma distinta de la mitocondrial de la cetogénesis.' }],
@@ -993,6 +1043,115 @@ export const REACCIONES = [
       { plus: true, t: 'Lo entrega por un receptor que capta solo los ésteres (SR-B1) o pasándolo a otras lipoproteínas por la CETP.' },
     ],
   },
+  /* ── El grupo amino: transdesaminación y transporte ─────────────────────── */
+  {
+    id: 'transaminasa', ruta: 'nitrogeno', enzima: 'Aminotransferasas', alias: 'Transaminasas: ALT (GPT) y AST (GOT)',
+    de: ['aminoacido'], a: ['glutamato'], gasta: ['α-Cetoglutarato'], forma: ['α-Cetoácido'], reversible: true, rotulo: 'arriba',
+    lugar: 'Citosol y mitocondria',
+    tipo: 'Transaminación: el grupo α-amino pasa al α-cetoglutarato',
+    notas: [
+      { t: 'Es el primer paso para degradar casi todos los aminoácidos. El aminoácido queda como su α-cetoácido y el α-cetoglutarato se convierte en glutamato.' },
+      { t: 'Son reversibles (ΔG cercano a cero): sirven tanto para degradar aminoácidos como para sintetizar los no esenciales a partir de su cetoácido.' },
+      { t: 'Coenzima: el piridoxal fosfato (PLP), derivado de la vitamina B6, unido a una lisina por una base de Schiff. Mecanismo de doble desplazamiento (ping-pong): el PLP recibe el grupo amino y queda como piridoxamina fosfato; después se lo entrega al α-cetoglutarato.' },
+      { t: 'ALT (alanina aminotransferasa, GPT): alanina + α-cetoglutarato dan piruvato + glutamato.' },
+      { t: 'AST (aspartato aminotransferasa, GOT): aspartato + α-cetoglutarato dan oxalacetato + glutamato.' },
+      { plus: true, t: 'El PLP es la coenzima de casi todas las reacciones de aminoácidos: transaminaciones, descarboxilaciones (de ahí salen las aminas biógenas) y racemizaciones. También es la de la glucógeno fosforilasa.' },
+    ],
+    inhibidores: [
+      { nombre: 'En el diagnóstico', t: 'Las transaminasas son intracelulares: si suben en sangre, hubo daño de células. La ALT es más específica del hígado (hepatitis); la AST está además en el corazón y el músculo.' },
+      { nombre: 'Isoniazida', plus: true, t: 'El antituberculoso atrapa la vitamina B6 y puede dar neuropatía si no se suplementa.' },
+    ],
+  },
+  {
+    id: 'gdh', ruta: 'nitrogeno', enzima: 'Glutamato deshidrogenasa',
+    de: ['glutamato'], a: ['nh4'], gasta: ['NAD⁺'], forma: ['NADH', 'α-Cetoglutarato'], reversible: true, regulada: true, rotulo: 'arriba',
+    lugar: 'Matriz mitocondrial del hígado',
+    tipo: 'Desaminación oxidativa: libera el grupo amino como amonio',
+    notas: [
+      { t: 'Es de las pocas enzimas que usan tanto NAD⁺ como NADP⁺. Está también en el riñón.' },
+      { t: 'Regenera el α-cetoglutarato que necesitan las transaminasas.' },
+      { t: 'Transdesaminación: la transaminación (que junta los grupos amino en el glutamato) seguida de esta enzima (que los libera) es la vía principal por la que se saca el nitrógeno de los aminoácidos.' },
+    ],
+    regulacion: {
+      inhiben: ['ATP', 'GTP'],
+      activan: ['ADP', 'GDP'],
+      notas: [{ t: 'Cuando falta energía, se degradan aminoácidos y su esqueleto va al ciclo de Krebs.' }],
+    },
+  },
+  {
+    id: 'gs', ruta: 'nitrogeno', enzima: 'Glutamina sintetasa',
+    de: ['glutamato'], a: ['glutamina'], gasta: ['NH₄⁺', 'ATP'],
+    via: { x: 1120, y: 1525 },
+    lugar: 'La mayoría de los tejidos, incluido el cerebro',
+    tipo: 'Une el amonio al glutamato',
+    notas: [{ t: 'Es la puerta de entrada del amonio a los compuestos orgánicos.' }],
+  },
+  {
+    id: 'glutaminasa', ruta: 'nitrogeno', enzima: 'Glutaminasa',
+    de: ['glutamina'], a: ['glutamato'], forma: ['NH₄⁺'],
+    via: { x: 1240, y: 1525 }, rot: { x: 1228, y: 1529, ancla: 'start' },
+    lugar: 'Hígado y riñón',
+    tipo: 'Libera el nitrógeno amídico de la glutamina',
+    notas: [{ plus: true, t: 'En la acidosis, el riñón usa más glutamina y elimina el amonio por la orina, que así se lleva protones.' }],
+  },
+
+  /* ── Ciclo de la urea ───────────────────────────────────────────────────── */
+  {
+    id: 'cps1', ruta: 'urea', paso: 1, enzima: 'Carbamoil fosfato sintetasa I',
+    de: ['nh4'], a: ['carbamoilp'], gasta: ['HCO₃⁻', 'ATP'], regulada: true, lado: 'izq',
+    lugar: 'Matriz mitocondrial',
+    tipo: 'NH₄⁺ + HCO₃⁻ + 2 ATP dan carbamoil fosfato',
+    notas: [
+      { t: 'Es el paso limitante del ciclo de la urea.' },
+      { plus: true, t: 'Es distinta de la carbamoil fosfato sintetasa II del citosol, que fabrica pirimidinas.' },
+    ],
+    regulacion: {
+      inhiben: [],
+      activan: ['N-acetilglutamato (activador alostérico obligado)'],
+      notas: [
+        { t: 'A corto plazo: al N-acetilglutamato lo fabrica la N-acetilglutamato sintetasa a partir de acetil-CoA y glutamato, y a esta la activa la arginina. Cuando hay muchos aminoácidos, se forma más y el ciclo se acelera.' },
+        { t: 'A largo plazo: cambia la cantidad de las cinco enzimas, que aumenta con las dietas ricas en proteínas y en el ayuno prolongado.' },
+      ],
+    },
+    inhibidores: [
+      { nombre: 'Defectos del ciclo de la urea', plus: true, t: 'Cualquier enzima que falte da hiperamonemia desde el nacimiento. Se tratan con dieta pobre en proteínas, con arginina y con compuestos que se llevan el nitrógeno por otra vía: el benzoato se une a la glicina y el fenilbutirato a la glutamina, y se excretan por la orina.' },
+    ],
+  },
+  {
+    id: 'otc', ruta: 'urea', paso: 2, enzima: 'Ornitina transcarbamilasa',
+    de: ['ornitina', 'carbamoilp'], a: ['citrulina'],
+    rot: { x: 1318, y: 1858, ancla: 'end' },
+    lugar: 'Matriz mitocondrial',
+    tipo: 'Carbamoil fosfato + ornitina dan citrulina',
+    notas: [{ t: 'La citrulina sale al citosol.' }],
+  },
+  {
+    id: 'ass', ruta: 'urea', paso: 3, enzima: 'Argininosuccinato sintetasa',
+    de: ['citrulina', 'aspartato'], a: ['argsucc'], gasta: ['ATP'], forma: ['AMP', 'PPi'],
+    rot: { x: 1354, y: 1996, ancla: 'start' },
+    lugar: 'Citosol',
+    tipo: 'Citrulina + aspartato dan argininosuccinato',
+    notas: [
+      { t: 'Acá entra el segundo nitrógeno de la urea, el del aspartato.' },
+      { t: 'Costo del ciclo: 3 ATP por urea, pero equivalen a 4 enlaces de alta energía (dos ATP a ADP en el paso 1 y un ATP a AMP + PPi acá). Parte se recupera con el NADH de la malato deshidrogenasa.' },
+    ],
+  },
+  {
+    id: 'asl', ruta: 'urea', paso: 4, enzima: 'Argininosuccinato liasa',
+    de: ['argsucc'], a: ['arginina'], forma: ['Fumarato'],
+    rot: { x: 1148, y: 1996, ancla: 'end' },
+    lugar: 'Citosol',
+    tipo: 'Argininosuccinato da arginina + fumarato',
+    notas: [{ t: 'El fumarato es la unión con el ciclo de Krebs: pasa a malato y a oxalacetato, que por transaminación vuelve a ser aspartato. Por eso se habla de la «bicicleta de Krebs».' }],
+  },
+  {
+    id: 'arginasa', ruta: 'urea', paso: 5, enzima: 'Arginasa',
+    de: ['arginina'], a: ['ornitina', 'urea'], gasta: ['H₂O'],
+    rot: { x: 1148, y: 1812, ancla: 'end' },
+    lugar: 'Citosol',
+    tipo: 'Hidrólisis: arginina + H₂O dan urea + ornitina',
+    notas: [{ t: 'La ornitina vuelve a la mitocondria para otra vuelta.' }],
+  },
 ];
 
 /* Lo que muestra el panel cuando no hay nada elegido: los balances. */
@@ -1069,6 +1228,28 @@ BALANCES.push({
     'Cuanto más lípido tienen, más grandes y menos densas son.',
   ],
 });
+
+BALANCES.push({
+  ruta: 'urea', titulo: 'Ciclo de la urea',
+  ecuacion: ['NH₄⁺ + HCO₃⁻ + aspartato + 3 ATP', 'Urea + fumarato'],
+  notas: [
+    'En el hígado: los pasos 1 y 2 en la matriz mitocondrial, los otros tres en el citosol.',
+    'Transdesaminación: las transaminasas juntan el nitrógeno en el glutamato y la glutamato deshidrogenasa lo libera como amonio.',
+  ],
+});
+
+/* Lo que el metabolismo nitrogenado suma a metabolitos que ya estaban: son
+   los puntos donde los aminoácidos se cruzan con el resto. */
+function sumar(id, campo, texto) {
+  const m = METABOLITOS.find((x) => x.id === id);
+  (m[campo] ||= []).push(texto);
+}
+sumar('piruvato', 'llegadas', 'Alanina, por la ALT (ciclo glucosa-alanina).');
+sumar('oaa', 'llegadas', 'Aspartato, por la AST.');
+sumar('akg', 'llegadas', 'Glutamato, por la glutamato deshidrogenasa.');
+sumar('fumarato', 'llegadas', 'Ciclo de la urea: el fumarato de la argininosuccinato liasa.');
+sumar('acetoacetil', 'llegadas', 'Aminoácidos cetogénicos: leucina y lisina.');
+sumar('pg3', 'salidas', 'Serina, glicina y cisteína.');
 
 export const RENDIMIENTO = {
   filas: [

@@ -26,6 +26,8 @@
   --fx-h:     oklch(78% .11 250);    /* protones bombeados */
   --fx-col:   oklch(84% .07 215);    /* síntesis de colesterol */
   --fx-lpp:   oklch(74% .09 330);    /* lipoproteínas */
+  --fx-nit:   oklch(83% .1 160);     /* grupo amino */
+  --fx-ure:   oklch(74% .11 272);    /* ciclo de la urea */
   --fx-linea: rgb(255 255 255 / .40);
   --fx-tapa:  rgb(24 24 26);         /* lo que tapa la flecha debajo de una insignia */
 }
@@ -161,6 +163,10 @@
 .fx-mapa[data-capa="vias"] .fx-rx--cadena { --fx-c: var(--fx-cad); }
 .fx-mapa[data-capa="vias"] .fx-rx--colesterol { --fx-c: var(--fx-col); }
 .fx-mapa[data-capa="vias"] .fx-rx--lipoproteinas { --fx-c: var(--fx-lpp); }
+.fx-mapa[data-capa="vias"] .fx-rx--nitrogeno { --fx-c: var(--fx-nit); }
+.fx-mapa[data-capa="vias"] .fx-rx--urea { --fx-c: var(--fx-ure); }
+.fx-mapa[data-capa="vias"] .fx-rx--nitrogeno .fx-tramo,
+.fx-mapa[data-capa="vias"] .fx-rx--urea .fx-tramo,
 .fx-mapa[data-capa="vias"] .fx-rx--colesterol .fx-tramo,
 .fx-mapa[data-capa="vias"] .fx-rx--lipoproteinas .fx-tramo,
 .fx-mapa[data-capa="vias"] .fx-rx--betaox .fx-tramo,
@@ -218,6 +224,8 @@
 .fx-ley--h     { background: var(--fx-h); }
 .fx-ley--col   { background: var(--fx-col); }
 .fx-ley--lpp   { background: var(--fx-lpp); }
+.fx-ley--nit   { background: var(--fx-nit); }
+.fx-ley--ure   { background: var(--fx-ure); }
 
 /* ── La ficha (panel derecho) ──────────────────────────────────────────────── */
 

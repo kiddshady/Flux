@@ -62,7 +62,7 @@ app.whenReady().then(async () => {
   ok('el splash se fue', !(await js(`!!document.getElementById('boot-splash')`)));
   ok('los <i data-icon> se reemplazaron por SVG', !(await js(`!!document.querySelector('i[data-icon]')`)));
   ok('el rail marca Mapa', await js(`!!document.querySelector('[data-view="mapa"].is-active')`));
-  ok('el panel está prendido y muestra el resumen', await js(`document.querySelector('.op-app').classList.contains('con-panel') && document.querySelector('.op-panel__title').textContent.includes('lípidos')`));
+  ok('el panel está prendido y muestra el resumen', await js(`document.querySelector('.op-app').classList.contains('con-panel') && document.querySelector('.op-panel__title').textContent.includes('metabolismo')`));
 
   console.log('\n2. Los datos cierran');
   ok('toda reacción apunta a metabolitos que existen', datos.huerfanos.length === 0, datos.huerfanos.join());
@@ -165,7 +165,7 @@ app.whenReady().then(async () => {
   ok('acercar cambia la escala', antes !== cerca, cerca);
   await js(`document.querySelector('.fx-mapa').dispatchEvent(new MouseEvent('click', { bubbles: true }))`);
   await sleep(400);
-  ok('click en el fondo suelta la elección', await js(`!document.querySelector('.fx-mapa').classList.contains('hay-eleccion') && document.querySelector('.op-panel__title').textContent.includes('lípidos')`));
+  ok('click en el fondo suelta la elección', await js(`!document.querySelector('.fx-mapa').classList.contains('hay-eleccion') && document.querySelector('.op-panel__title').textContent.includes('metabolismo')`));
   await click('[data-zoom="todo"]');
   await sleep(600);
   const vuelta = await medirAncho();
@@ -198,6 +198,15 @@ app.whenReady().then(async () => {
     return g.top > l.top && g.bottom < l.bottom && g.left > l.left && g.right < l.right; })()`);
   ok('«Ver en el mapa» lleva a la enzima y la deja a la vista', enVista && await js(`document.querySelector('[data-rx="sdh"]').classList.contains('is-elegida')`));
   await foto('5-sdh-en-el-mapa');
+  if (SHOTS) {   // zonas lejanas al eje, de cerca: se llega a ellas por un enlace de la ficha
+    for (const [nombre, rx] of [['6-urea', 'otc'], ['6-lipoproteinas', 'lh'], ['6-beta-oxidacion', 'ech'], ['6-colesterol', 'isoprenos']]) {
+      await js(`(() => { const b = document.createElement('button'); b.dataset.irRx = ${JSON.stringify(rx)}; b.hidden = true; document.body.appendChild(b); b.click(); b.remove(); })()`);
+      await sleep(900);
+      await foto(nombre);
+    }
+    await js(`(() => { const b = document.createElement('button'); b.dataset.irRx = 'sdh'; b.hidden = true; document.body.appendChild(b); b.click(); b.remove(); })()`);
+    await sleep(600);
+  }
 
   console.log('\n9. Lo elegido se guarda');
   const guardado = await js(`window.opal.settings.get()`);

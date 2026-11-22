@@ -119,7 +119,7 @@ export function fichaResumen() {
     <span class="fx-rend__n op-num">${esc(f[2])}</span></div>`).join('');
 
   return {
-    titulo: 'Glúcidos, lípidos y energía',
+    titulo: 'El mapa del metabolismo',
     sub: `${REACCIONES.length} reacciones · ${METABOLITOS.length} metabolitos`,
     cuerpo: `
       <p class="fx-texto op-dim">Tocá una flecha para ver su enzima, o un metabolito para ver qué lo forma y qué lo consume.</p>

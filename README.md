@@ -10,7 +10,8 @@ App de escritorio para Windows (Electron), construida sobre la plantilla Opal.
 
 - **El mapa:** glucólisis, gluconeogénesis, vía de las pentosas, glucógeno,
   piruvato deshidrogenasa, ciclo de Krebs, cadena respiratoria, oxidación y
-  síntesis de ácidos grasos, cuerpos cetónicos, colesterol y lipoproteínas.
+  síntesis de ácidos grasos, cuerpos cetónicos, colesterol, lipoproteínas,
+  grupo amino y ciclo de la urea.
 - **Fichas** de cada enzima y de cada metabolito (qué lo forma, qué lo consume).
 - **Capas:** ruta, vías, energía, regulación e inhibidores.
 - **Lista de enzimas** con búsqueda (Ctrl+F).

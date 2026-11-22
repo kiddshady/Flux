@@ -49,8 +49,8 @@ function punta(p, ux, uy, t = 7) {
 /* Lo que una reacción muestra al lado de su flecha: solo lo que importa para
    seguir la energía. El resto (ADP, CoA, Pi, agua) está en la ficha. */
 const VISIBLES_GASTA = ['ATP', 'GTP', 'UTP', 'NADH', 'NADPH', 'O₂'];
-const VISIBLES_FORMA = ['ATP', 'GTP', 'NADH', 'FADH₂', 'NADPH', 'CO₂'];
-const CLASE_COF = { ATP: 'atp', GTP: 'atp', NADH: 'red', 'FADH₂': 'red', NADPH: 'red', 'CO₂': 'co2' };
+const VISIBLES_FORMA = ['ATP', 'GTP', 'NADH', 'FADH₂', 'NADPH', 'CO₂', 'Fumarato', 'NH₄⁺'];
+const CLASE_COF = { ATP: 'atp', GTP: 'atp', NADH: 'red', 'FADH₂': 'red', NADPH: 'red', 'CO₂': 'co2', Fumarato: 'co2', 'NH₄⁺': 'co2' };
 
 function cofactores(r) {
   const partes = [];
@@ -120,7 +120,9 @@ function dibujarReaccion(r) {
     const ux = -p2.ux, uy = -p2.uy;
     trazos = `<path class="fx-tramo" d="M${n1(p1.x)},${n1(p1.y)} L${n1(p2.x)},${n1(p2.y)}"/>` + punta(p2, ux, uy);
     if (r.reversible) trazos += punta({ x: p1.x - ux * 3, y: p1.y - uy * 3 }, -ux, -uy, 6);
-    medio = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+    // la insignia va al medio, salvo que ahí cruce otra flecha: entonces `insigniaEn` la corre
+    const f = r.insigniaEn ?? 0.5;
+    medio = { x: p1.x + (p2.x - p1.x) * f, y: p1.y + (p2.y - p1.y) * f };
     if (Math.abs(uy) > Math.abs(ux)) {
       // la enzima a un lado de la flecha y los cofactores al otro (o debajo de ella)
       const xe = medio.x + (izq ? -18 : 18);
@@ -179,7 +181,7 @@ function dibujarNodo(m) {
 }
 
 function dibujar() {
-  const mito = { x: 36, y: 948, w: 1524 - 36, h: LIENZO.h - 948 - 14 };
+  const mito = LIENZO.mito;
   return `
     <g class="fx-zonas" aria-hidden="true">
       <rect class="fx-mito" x="1120" y="46" width="940" height="236" rx="28"/>
@@ -202,6 +204,11 @@ function dibujar() {
       <text class="fx-centro__sub" x="1270" y="1214" text-anchor="middle">2 C menos por vuelta</text>
       <text class="fx-fase" x="800" y="1050" text-anchor="middle">Cuerpos cetónicos</text>
       <text class="fx-fase__sub" x="800" y="1066" text-anchor="middle">en el hígado</text>
+      <text class="fx-fase" x="1060" y="1634" text-anchor="middle">Grupo amino</text>
+      <text class="fx-fase__sub" x="1060" y="1650" text-anchor="middle">transdesaminación</text>
+      <text class="fx-centro" x="1250" y="1900" text-anchor="middle">Ciclo de la urea</text>
+      <text class="fx-centro__sub" x="1250" y="1918" text-anchor="middle">en el hígado</text>
+      <text class="fx-lugar" x="60" y="1876">Citosol</text>
       <text class="fx-fase" x="60" y="1590">Cadena respiratoria</text>
       <text class="fx-fase__sub" x="60" y="1606">membrana interna</text>
       <text class="fx-centro" x="${ANILLO.cx}" y="${ANILLO.cy - 4}" text-anchor="middle">Ciclo de Krebs</text>

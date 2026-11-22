@@ -1,0 +1,91 @@
+'use strict';
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   OPAL — puente IPC
+   El renderer no tiene fs, ni require, ni red: `contextIsolation` está activo.
+   Todo lo que necesite del sistema pasa por acá, y acá se decide qué se puede
+   pedir. Es la superficie de ataque de la app: todo lo que agregues es una
+   puerta más.
+
+   Convención: cada handler devuelve {ok:true, data} o {ok:false, error}. El
+   preload la desenvuelve y convierte el error en una excepción real, así el
+   renderer escribe try/catch normal en vez de chequear banderas.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const { ipcMain, app, clipboard, shell } = require('electron');
+const path = require('path');
+const fs = require('fs');
+const store = require('./store.cjs');
+
+/* Las colecciones que el renderer puede tocar. Es una lista blanca a
+   propósito: sin ella, cualquier bug en el renderer puede crear carpetas
+   sueltas en tu directorio de datos. Agregá las tuyas acá. */
+const COLLECTIONS = [];
+
+/* Dónde viven los apuntes de Química Biológica si los ajustes no dicen otra cosa. */
+const APUNTES_DIR = path.join(app.getPath('home'), 'Desktop', 'UMAZA', 'final', 'química biológica', 'fran', 'teoría');
+
+function coll(name) {
+  if (!COLLECTIONS.includes(name)) throw new Error(`colección no permitida: ${name}`);
+  return store.collection(name);
+}
+
+/** Envuelve un handler para que un throw viaje como error y no como crash. */
+function handle(channel, fn) {
+  ipcMain.handle(channel, async (_e, ...args) => {
+    try {
+      return { ok: true, data: await fn(...args) };
+    } catch (err) {
+      console.error(`[ipc] ${channel}:`, err);
+      return { ok: false, error: err?.message || String(err) };
+    }
+  });
+}
+
+function register() {
+  handle('app:info', () => ({
+    name: app.getName(),
+    version: app.getVersion(),
+    dataDir: store.ROOT,
+    electron: process.versions.electron,
+  }));
+  // Los archivos de datos que se apartaron por ilegibles: la app lo avisa.
+  handle('store:asides', () => store.asides().map((a) => ({ file: path.basename(a.file), dead: a.dead })));
+
+  /* El texto del portapapeles, para el "Pegar" del menú de los campos. Desde
+     la página, leerlo pide un permiso; acá no. Con tope: un portapapeles
+     gigante no tiene por qué cruzar entero. Desde Electron 44 el
+     portapapeles del proceso principal es asíncrono, como el de la web. */
+  handle('clip:read', async () => (await clipboard.readText()).slice(0, 100000));
+
+  /* Abrir el PDF de un apunte con el lector del sistema. El renderer manda una
+     ruta RELATIVA a la carpeta de teoría (ajuste `apuntesDir`); acá se verifica
+     que no se salga de esa carpeta y que sea un PDF que existe: esta puerta
+     abre archivos, así que no abre cualquiera. */
+  handle('apunte:abrir', async (rel) => {
+    const ajustes = await store.loadSettings();
+    const base = path.resolve(ajustes?.apuntesDir || APUNTES_DIR);
+    const destino = path.resolve(base, String(rel || ''));
+    if (!destino.startsWith(base + path.sep) || path.extname(destino).toLowerCase() !== '.pdf') {
+      throw new Error('Esa ruta no es un apunte.');
+    }
+    if (!fs.existsSync(destino)) throw new Error(`No está el PDF: ${destino}`);
+    const error = await shell.openPath(destino);
+    if (error) throw new Error(error);
+    return true;
+  });
+
+  handle('settings:get', () => store.loadSettings());
+  handle('settings:save', (patch) => store.saveSettings(patch));
+
+  handle('doc:read', (name, fallback = null) => store.doc(name, fallback).read());
+  handle('doc:write', (name, data) => store.doc(name).write(data).then(() => true));
+
+  handle('col:list', (name) => coll(name).list());
+  handle('col:get', (name, id) => coll(name).get(id));
+  handle('col:save', (name, item) => coll(name).save(item));
+  handle('col:remove', (name, id) => coll(name).remove(id).then(() => true));
+  handle('col:next-id', (name, prefix) => coll(name).nextId(prefix));
+}
+
+module.exports = { register, COLLECTIONS };

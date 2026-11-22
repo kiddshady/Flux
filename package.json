@@ -1,0 +1,65 @@
+{
+  "name": "flux",
+  "productName": "Flux",
+  "version": "0.2.0",
+  "description": "Flux: mapa interactivo del metabolismo para Química Biológica.",
+  "main": "main.cjs",
+  "author": "Kidd Shady · Umbrovex Systems <umbrovex@proton.me>",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "test": "node test/tokens.test.mjs && node test/store.test.mjs && node test/format.test.mjs",
+    "smoke": "electron test/flux.test.cjs",
+    "icons": "node tools/build-icon.mjs",
+    "dist": "electron-builder --win",
+    "release": "node tools/release.mjs"
+  },
+  "devDependencies": {
+    "electron": "44.10.1",
+    "electron-builder": "^26.18.0"
+  },
+  "build": {
+    "appId": "systems.umbrovex.flux",
+    "copyright": "© 2026 Kidd Shady · Umbrovex Systems",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.cjs",
+      "preload.cjs",
+      "src/**/*",
+      "renderer/**/*",
+      "LICENSE",
+      "NOTICE"
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "kiddshady",
+        "repo": "Flux"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "artifactName": "Flux-Setup-${version}.${ext}",
+      "oneClick": true,
+      "perMachine": false,
+      "deleteAppDataOnUninstall": false
+    }
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.11"
+  }
+}

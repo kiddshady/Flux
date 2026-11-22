@@ -1,0 +1,149 @@
+<meta charset="utf-8">
+<!-- CSP estricta: sin conexiones externas, sin eval. Si tu app necesita hablar
+     con una API, agregá su origen a connect-src y nada más. -->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
+<title>Flux</title>
+
+<link rel="stylesheet" href="./css/fonts.css">
+<link rel="stylesheet" href="./css/tokens.css">
+<link rel="stylesheet" href="./css/base.css">
+<link rel="stylesheet" href="./css/motion.css">
+<link rel="stylesheet" href="./css/shell.css">
+<link rel="stylesheet" href="./css/controls.css">
+<link rel="stylesheet" href="./css/surfaces.css">
+<link rel="stylesheet" href="./css/overlays.css">
+<link rel="stylesheet" href="./css/flux.css">
+
+<style>
+  /* Boot splash: réplica exacta del primer frame. Pinta ANTES de que cargue
+     ningún módulo, así no hay un solo instante sin identidad en pantalla.
+     El color tiene que ser el mismo backgroundColor de la BrowserWindow —
+     literal, no una variable: los tokens todavía podrían no haber cargado. */
+  #boot-splash {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: grid;
+    place-items: center;
+    background: #0a0a0a;
+    transition: opacity .34s cubic-bezier(.16, 1, .3, 1);
+  }
+  #boot-splash svg { width: 46px; height: 46px; stroke: #f2f4f7; fill: none;
+                     stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; }
+  /* La marca se DIBUJA, no aparece: primero la piedra, después el fuego. */
+  #boot-splash path { stroke-dasharray: 36; stroke-dashoffset: 36;
+                      animation: boot-draw .72s cubic-bezier(.16,1,.3,1) forwards; }
+  #boot-splash path:last-child { stroke-dasharray: 8; stroke-dashoffset: 8;
+                                 opacity: .34; animation-delay: .1s; }
+  @keyframes boot-draw { to { stroke-dashoffset: 0 } }
+</style>
+
+<div id="boot-splash">
+  <svg viewBox="0 0 16 16">
+    <path d="M9.37 13.46A4 4 0 1 1 11.76 11.07M13.37 10.06L11.76 11.07L11.17 9.26"/>
+    <path d="M8 1.9V5.7"/>
+  </svg>
+</div>
+
+<div class="op-app">
+
+  <!-- El sustrato: la niebla que el vidrio difumina. Una capa, estática. -->
+  <div class="op-fog" aria-hidden="true"></div>
+
+  <!-- ── Titlebar propia: acá no hay frame nativo ─────────────────────────── -->
+  <header class="op-titlebar">
+    <div class="op-brand op-no-drag" data-tip="Flux" id="brand">
+      <svg class="op-brand__mark op-icon" viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M9.37 13.46A4 4 0 1 1 11.76 11.07M13.37 10.06L11.76 11.07L11.17 9.26"/>
+        <path class="op-brand__trail" d="M8 1.9V5.7"/>
+      </svg>
+      <span class="op-brand__name">Flux</span>
+    </div>
+
+    <!-- Contexto de la vista actual. Lo llena el router. -->
+    <div class="op-titlebar__context" id="titlebar-context"></div>
+  </header>
+
+  <!-- Los controles de ventana viven aparte de la titlebar: sin ella, flotan
+       en la esquina (.sin-titlebar). -->
+  <div class="op-wincontrols">
+    <button class="op-wincontrol" id="win-min"   aria-label="Minimizar"><i data-icon="winMin"></i></button>
+    <button class="op-wincontrol op-iconswap" id="win-max" aria-label="Maximizar"><i data-icon="winMax"></i><i data-icon="winRestore"></i></button>
+    <button class="op-wincontrol op-wincontrol--close" id="win-close" aria-label="Cerrar"><i data-icon="winClose"></i></button>
+  </div>
+
+  <div class="op-body">
+
+    <!-- ── Rail ──────────────────────────────────────────────────────────── -->
+    <nav class="op-rail">
+      <!-- La marca, cuando no hay titlebar: se despliega sola (.sin-titlebar). -->
+      <div class="op-rail__brand"><div>
+        <div class="op-brand">
+          <svg class="op-brand__mark op-icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M9.37 13.46A4 4 0 1 1 11.76 11.07M13.37 10.06L11.76 11.07L11.17 9.26"/>
+            <path class="op-brand__trail" d="M8 1.9V5.7"/>
+          </svg>
+          <span class="op-brand__name">Flux</span>
+        </div>
+      </div></div>
+
+      <div class="op-rail__nav op-scroll">
+        <div class="op-rail__group">
+          <button class="op-navitem" data-view="mapa">
+            <i data-icon="globe"></i> Mapa
+          </button>
+          <button class="op-navitem" data-view="enzimas">
+            <i data-icon="list"></i> Enzimas
+          </button>
+        </div>
+      </div>
+
+      <div class="op-rail__foot" id="rail-foot"><span class="op-meta">Química Biológica · U5 y U7</span></div>
+    </nav>
+
+    <!-- ── Vista ─────────────────────────────────────────────────────────── -->
+    <main class="op-main" id="view"></main>
+
+    <!-- ── Panel derecho: el espejo del rail (.con-panel) ─────────────────── -->
+    <aside class="op-panel" id="panel" aria-label="Detalle" inert></aside>
+
+    <!-- ── Compositor: el panel de abajo, para escribir (.con-composer) ───── -->
+    <div class="op-composer" id="composer" inert>
+      <div class="op-composer__in"><div class="op-composer__pad">
+        <div class="op-composer__box">
+          <div class="op-composer__row">
+            <textarea class="op-composer__input" id="composer-input" rows="1" spellcheck="false"
+                      placeholder="Escribí algo y Enter: queda como un ítem nuevo"></textarea>
+            <button class="op-composer__send" id="composer-send" disabled aria-label="Enviar" data-tip="Enviar"><i data-icon="keyUp"></i></button>
+          </div>
+        </div>
+        <div class="op-composer__foot">
+          <button class="op-iconbtn op-iconbtn--sm" id="composer-attach" data-tip="Adjuntar"><i data-icon="plus"></i></button>
+          <button class="op-chip" id="composer-mode" data-tip="Cómo se manda"><i data-icon="zap"></i><span id="composer-mode-label">Auto</span><i data-icon="chevronDown"></i></button>
+          <span class="op-spacer"></span>
+          <span class="op-composer__hint">Enter envía · Mayús+Enter, otra línea</span>
+        </div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- ── Statusbar ───────────────────────────────────────────────────────── -->
+  <footer class="op-statusbar">
+    <div class="op-statusbar__item">
+      <i data-icon="arrowRight"></i> <span class="op-statusbar__value op-num" id="stat-rx">0</span> reacciones
+    </div>
+    <div class="op-statusbar__item">
+      <i data-icon="target"></i> <span class="op-statusbar__value op-num" id="stat-met">0</span> metabolitos
+    </div>
+    <div class="op-spacer"></div>
+    <div class="op-statusbar__item" data-tip="Capa del mapa" data-tip-side="top">
+      <i data-icon="layers"></i> <span class="op-statusbar__value" id="stat-capa">Ruta</span>
+    </div>
+  </footer>
+</div>
+
+<!-- Todos los overlays se portalean acá: fuera del flujo, por encima de todo. -->
+<div id="op-layer"></div>
+
+<script type="module" src="./js/app.js"></script>

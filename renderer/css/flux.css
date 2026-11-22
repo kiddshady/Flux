@@ -24,6 +24,8 @@
   --fx-lip:   oklch(78% .12 350);    /* síntesis de ácidos grasos */
   --fx-cad:   oklch(76% .11 250);    /* cadena respiratoria */
   --fx-h:     oklch(78% .11 250);    /* protones bombeados */
+  --fx-col:   oklch(84% .07 215);    /* síntesis de colesterol */
+  --fx-lpp:   oklch(74% .09 330);    /* lipoproteínas */
   --fx-linea: rgb(255 255 255 / .40);
   --fx-tapa:  rgb(24 24 26);         /* lo que tapa la flecha debajo de una insignia */
 }
@@ -157,6 +159,10 @@
 .fx-mapa[data-capa="vias"] .fx-rx--cetogenesis { --fx-c: var(--fx-cet); }
 .fx-mapa[data-capa="vias"] .fx-rx--lipogenesis { --fx-c: var(--fx-lip); }
 .fx-mapa[data-capa="vias"] .fx-rx--cadena { --fx-c: var(--fx-cad); }
+.fx-mapa[data-capa="vias"] .fx-rx--colesterol { --fx-c: var(--fx-col); }
+.fx-mapa[data-capa="vias"] .fx-rx--lipoproteinas { --fx-c: var(--fx-lpp); }
+.fx-mapa[data-capa="vias"] .fx-rx--colesterol .fx-tramo,
+.fx-mapa[data-capa="vias"] .fx-rx--lipoproteinas .fx-tramo,
 .fx-mapa[data-capa="vias"] .fx-rx--betaox .fx-tramo,
 .fx-mapa[data-capa="vias"] .fx-rx--cetogenesis .fx-tramo,
 .fx-mapa[data-capa="vias"] .fx-rx--lipogenesis .fx-tramo,
@@ -210,6 +216,8 @@
 .fx-ley--lip   { background: var(--fx-lip); }
 .fx-ley--cad   { background: var(--fx-cad); }
 .fx-ley--h     { background: var(--fx-h); }
+.fx-ley--col   { background: var(--fx-col); }
+.fx-ley--lpp   { background: var(--fx-lpp); }
 
 /* ── La ficha (panel derecho) ──────────────────────────────────────────────── */
 

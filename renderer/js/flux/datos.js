@@ -8,7 +8,7 @@
    geometría (x, y) está en unidades del lienzo del mapa (ver mapa.js).
    ═══════════════════════════════════════════════════════════════════════════ */
 
-export const LIENZO = { w: 1560, h: 1850, eje: 520 };
+export const LIENZO = { w: 2100, h: 1850, eje: 520 };
 
 /* El anillo de Krebs: ocho metabolitos cada 45°, medidos en sentido horario
    desde arriba. El paso 1 (citrato sintasa) queda justo arriba, donde entra
@@ -31,6 +31,8 @@ export const RUTAS = {
   betaox: { nombre: 'Oxidación de ácidos grasos', lugar: 'Matriz mitocondrial', unidad: 'U8', seccion: 'La oxidación de los ácidos grasos' },
   cetogenesis: { nombre: 'Cuerpos cetónicos', lugar: 'Matriz mitocondrial', unidad: 'U8', seccion: 'Los cuerpos cetónicos' },
   lipogenesis: { nombre: 'Síntesis de ácidos grasos', lugar: 'Citosol', unidad: 'U8', seccion: 'La síntesis de ácidos grasos' },
+  colesterol: { nombre: 'Síntesis de colesterol', lugar: 'Citosol y retículo endoplasmático liso', unidad: 'U8', seccion: 'El colesterol' },
+  lipoproteinas: { nombre: 'Lipoproteínas', lugar: 'Plasma', unidad: 'U8', seccion: 'Las lipoproteínas' },
   anaplerotica: { nombre: 'Reacción anaplerótica', lugar: 'Matriz mitocondrial', unidad: 'U5', seccion: 'Un ciclo anfibólico' },
 };
 
@@ -175,6 +177,57 @@ export const METABOLITOS = [
       { t: 'Elongación: se alarga a estearato (18:0) y a ácidos más largos en el retículo endoplasmático liso. El donador de los dos carbonos es otra vez el malonil-CoA, pero con la CoA en lugar de la ACP.' },
       { t: 'Desaturación: las desaturasas del retículo introducen dobles enlaces cis; son oxidasas de función mixta. La Δ9-desaturasa lo convierte en palmitoleico, y al estearato en oleico.' },
       { t: 'Con glicerol-3-fosfato (que sale de la DHAP) forma triglicéridos: el hígado los exporta en las VLDL y el tejido adiposo los guarda.' },
+    ] },
+  /* ── Síntesis de colesterol ─────────────────────────────────────────────── */
+  { id: 'hmg_cit', nombre: 'HMG-CoA (citosol)', corto: 'HMG-CoA', c: 6, x: 1640, y: 840,
+    notas: [{ t: 'Es el mismo compuesto que el de la cetogénesis, pero en otro compartimiento y fabricado por otra isoforma de la sintasa: en la mitocondria va a cuerpos cetónicos; en el citosol, a colesterol.' }] },
+  { id: 'mevalonato', nombre: 'Mevalonato', c: 6, x: 1640, y: 730 },
+  { id: 'ipp', nombre: 'Isopentenil pirofosfato', c: 5, x: 1640, y: 620,
+    notas: [{ t: 'Es el isopreno activado.' }] },
+  { id: 'escualeno', nombre: 'Escualeno', c: 30, x: 1640, y: 510 },
+  { id: 'colesterol', nombre: 'Colesterol', c: 27, x: 1640, y: 400,
+    salidas: [
+      'Membranas celulares.',
+      'Ácidos biliares (en el hígado): son la principal vía de eliminación. Se secretan a la bilis, ayudan a digerir las grasas y se reabsorben en gran parte (circulación enterohepática).',
+      'Hormonas esteroideas (corteza suprarrenal, gónadas), por enzimas P450 mitocondriales.',
+      'Vitamina D (en la piel, desde el 7-dehidrocolesterol, con luz UV).',
+    ],
+    notas: [
+      { t: 'Todos sus 27 carbonos vienen del acetil-CoA. Se fabrica en casi todas las células, sobre todo en el hígado.' },
+      { t: 'Es el principal regulador de su propia síntesis: cuando sube dentro de la célula, frena la transcripción de la HMG-CoA reductasa y del receptor de LDL (por el factor de transcripción SREBP), acelera la degradación de la reductasa y activa la ACAT.' },
+      { t: 'Parte se excreta intacto por la bilis, y las bacterias intestinales lo transforman en coprostanol.' },
+    ] },
+  { id: 'esteres', nombre: 'Ésteres de colesterol', x: 1900, y: 400, clase: 'Forma de almacenamiento y de transporte',
+    notas: [{ t: 'Van en el núcleo no polar de las lipoproteínas, junto con los triglicéridos.' }] },
+
+  /* ── Lipoproteínas ──────────────────────────────────────────────────────── */
+  { id: 'vldl', nombre: 'VLDL', x: 1220, y: 110, clase: 'Triglicéridos fabricados en el hígado',
+    notas: [
+      { t: 'Densidad 0,95 a 1,006 g/mL; 10 % de proteína; triglicéridos (50 %). En la electroforesis migra como pre-beta.' },
+      { t: 'El hígado exporta en ellas sus triglicéridos y colesterol. Lleva apo B-100 (ensamblaje), C-II, C-III y E.' },
+    ] },
+  { id: 'idl', nombre: 'IDL', x: 1480, y: 110, clase: 'Remanente de la VLDL',
+    notas: [{ t: 'Densidad 1,006 a 1,019 g/mL; triglicéridos y colesterol. Parte vuelve al hígado; el resto se convierte en LDL.' }] },
+  { id: 'ldl', nombre: 'LDL', x: 1740, y: 110, clase: 'Lleva colesterol a los tejidos',
+    notas: [
+      { t: 'Densidad 1,019 a 1,063 g/mL; 23 % de proteína; ésteres de colesterol (37 %). En la electroforesis migra como beta. Su apo B-100 es el ligando del receptor de LDL.' },
+      { t: 'El «colesterol malo»: lleva colesterol a los tejidos. Si está alta, o se oxida, la captan los macrófagos de la pared arterial por receptores scavenger, que no se regulan. Esos macrófagos se llenan de colesterol, se transforman en células espumosas y forman la placa de ateroma.' },
+      { plus: true, t: 'La Lp(a), una LDL con una apo(a) unida por un puente disulfuro, es aterogénica y protrombótica.' },
+    ] },
+  { id: 'qm', nombre: 'Quilomicrón', x: 1220, y: 230, clase: 'Grasa de la dieta, desde el intestino',
+    notas: [
+      { t: 'Densidad menor de 1,006 g/mL; 2 % de proteína; triglicéridos (85 %). Es la más grande y la menos densa: en la electroforesis se queda en el origen.' },
+      { t: 'El intestino los forma nacientes, con apo B-48. En la sangre reciben de la HDL la apo C-II y la E.' },
+    ] },
+  { id: 'remanente', nombre: 'Remanente de quilomicrón', x: 1470, y: 230, clase: 'Rico en colesterol',
+    notas: [{ t: 'El colesterol de la dieta que trae baja la síntesis propia del hígado.' }] },
+  { id: 'hdl_n', nombre: 'HDL naciente', x: 1940, y: 110, clase: 'Discoidal, con apo A-I',
+    notas: [{ t: 'La secretan el hígado y el intestino. Toma colesterol de las membranas de los tejidos y de los macrófagos.' }] },
+  { id: 'hdl', nombre: 'HDL madura', x: 1940, y: 230, clase: 'Saca colesterol de los tejidos',
+    notas: [
+      { t: 'Densidad 1,063 a 1,210 g/mL; 55 % de proteína; fosfolípidos y ésteres de colesterol. Es la más chica y densa; migra como alfa.' },
+      { t: 'El «colesterol bueno»: hace el transporte reverso, saca colesterol de los tejidos y lo lleva al hígado.' },
+      { t: 'Es el depósito de apolipoproteínas: las C y la E pasan de una lipoproteína a otra, sobre todo desde la HDL. Las B-48 y B-100 no se transfieren (hay una por partícula).' },
     ] },
 ];
 
@@ -795,6 +848,151 @@ export const REACCIONES = [
       { t: 'No es la β-oxidación al revés: ocurre en el citosol, el transportador del acilo es la ACP (no la CoA), la unidad de dos carbonos entra como malonil-CoA y la coenzima es el NADPH.' },
     ],
   },
+  /* ── Síntesis de colesterol ─────────────────────────────────────────────── */
+  {
+    id: 'hmgs_cit', ruta: 'colesterol', paso: 1, enzima: 'Tiolasa y HMG-CoA sintasa', alias: 'la isoforma citosólica',
+    de: ['accoa_cit'], a: ['hmg_cit'],
+    rot: { x: 1450, y: 856, ancla: 'middle' },
+    lugar: 'Citosol',
+    tipo: 'Tres acetil-CoA forman HMG-CoA',
+    notas: [{ t: 'La HMG-CoA sintasa citosólica es una isoforma distinta de la mitocondrial de la cetogénesis.' }],
+  },
+  {
+    id: 'hmgr', ruta: 'colesterol', paso: 2, enzima: 'HMG-CoA reductasa',
+    de: ['hmg_cit'], a: ['mevalonato'], gasta: ['NADPH'], irreversible: true, regulada: true,
+    lugar: 'Retículo endoplasmático liso',
+    tipo: 'Reducción a mevalonato, con 2 NADPH',
+    notas: [
+      { t: 'Es el paso limitante, comprometido e irreversible de la síntesis de colesterol.' },
+      { t: 'Es una síntesis cara: gasta mucho ATP y NADPH.' },
+    ],
+    regulacion: {
+      inhiben: ['Colesterol (y sus derivados oxidados)'],
+      activan: [],
+      notas: [
+        { t: 'Cuando sube el colesterol dentro de la célula, se frena su transcripción (por el SREBP) y se acelera su degradación.' },
+        { t: 'Hormonas: la insulina la activa (por desfosforilación); el glucagón y la AMPK la fosforilan y la inactivan.' },
+        { plus: true, t: 'El mevalonato y otros productos de la vía también la retroinhiben.' },
+      ],
+    },
+    inhibidores: [
+      { nombre: 'Estatinas', t: 'Análogos del mevalonato: la inhiben en forma competitiva (lovastatina, simvastatina, atorvastatina, rosuvastatina). Baja el colesterol dentro del hepatocito, se activa el SREBP, el hígado fabrica más receptores de LDL, capta más LDL de la sangre y el colesterol LDL plasmático baja.' },
+      { nombre: 'Más sobre las estatinas', plus: true, t: 'Se toman de noche, cuando la síntesis es máxima (las de vida media corta). Su efecto adverso más importante es la miopatía. Se potencian con la ezetimiba, que bloquea la absorción intestinal de colesterol, y con las resinas que secuestran ácidos biliares.' },
+    ],
+  },
+  {
+    id: 'isoprenos', ruta: 'colesterol', paso: 3, enzima: 'Fosforilación y descarboxilación',
+    de: ['mevalonato'], a: ['ipp'], gasta: ['ATP'], forma: ['CO₂'],
+    lugar: 'Citosol',
+    tipo: 'El mevalonato se fosforila con 3 ATP y se descarboxila',
+  },
+  {
+    id: 'escualeno_s', ruta: 'colesterol', paso: 4, enzima: 'Condensación de seis isoprenos',
+    de: ['ipp'], a: ['escualeno'],
+    lugar: 'Retículo endoplasmático liso',
+    tipo: 'Seis isoprenos se condensan en el escualeno (30 C)',
+    notas: [{ t: 'Pasa por geranil y farnesil pirofosfato.' }],
+  },
+  {
+    id: 'ciclacion', ruta: 'colesterol', paso: 5, enzima: 'Ciclación y unos 20 pasos',
+    de: ['escualeno'], a: ['colesterol'],
+    lugar: 'Retículo endoplasmático liso',
+    tipo: 'El escualeno se cicla a lanosterol y de ahí a colesterol',
+    notas: [{ t: 'Del lanosterol al colesterol se eliminan tres metilos y se mueven dobles enlaces: quedan 27 carbonos.' }],
+  },
+  {
+    id: 'acat', ruta: 'colesterol', enzima: 'ACAT',
+    de: ['colesterol'], a: ['esteres'], rotulo: 'arriba',
+    lugar: 'Dentro de la célula',
+    tipo: 'Esterifica el colesterol para guardarlo',
+    regulacion: { inhiben: [], activan: ['Colesterol'], notas: [{ t: 'El colesterol que entra con la LDL la activa.' }] },
+  },
+
+  /* ── Lipoproteínas ──────────────────────────────────────────────────────── */
+  {
+    id: 'lpl_vldl', ruta: 'lipoproteinas', enzima: 'Lipoproteína lipasa', alias: 'LPL',
+    de: ['vldl'], a: ['idl'], regulada: true,
+    lugar: 'Endotelio de los capilares',
+    tipo: 'Vía endógena: hidroliza los triglicéridos de la VLDL',
+    notas: [
+      { t: 'Está en el endotelio de los capilares del tejido adiposo, el músculo y la mama, anclada por heparán sulfato.' },
+      { t: 'Hidroliza los triglicéridos a ácidos grasos y monoacilglicerol. Al perderlos, la VLDL queda como IDL.' },
+    ],
+    regulacion: {
+      inhiben: ['Apo C-III'],
+      activan: ['Apo C-II'],
+      notas: [{ t: 'La insulina aumenta la del tejido adiposo; en el ayuno y el ejercicio aumenta la del músculo.' }],
+    },
+  },
+  {
+    id: 'lh', ruta: 'lipoproteinas', enzima: 'Lipasa hepática',
+    de: ['idl'], a: ['ldl'],
+    lugar: 'Hígado',
+    tipo: 'Vía endógena: de IDL a LDL',
+    notas: [{ t: 'Hidroliza triglicéridos y fosfolípidos de las IDL y las HDL. Parte de las IDL vuelve al hígado; el resto se convierte en LDL.' }],
+  },
+  {
+    id: 'rldl', ruta: 'lipoproteinas', enzima: 'Receptor de LDL',
+    de: ['ldl'], a: ['colesterol'], regulada: true,
+    rot: { x: 1712, y: 300, ancla: 'start' },
+    lugar: 'Membrana de las células',
+    tipo: 'Endocitosis mediada por receptor',
+    notas: [
+      { t: 'Está en fosas recubiertas de clatrina. Une la LDL por la apo B-100 y la mete en la célula por endocitosis.' },
+      { t: 'En el lisosoma se degradan las proteínas y se liberan el colesterol y los ácidos grasos. El receptor vuelve a la membrana.' },
+      { t: 'El colesterol que entró inhibe la HMG-CoA reductasa, activa la ACAT y reprime la síntesis de más receptores.' },
+    ],
+    regulacion: { inhiben: ['Colesterol (reprime la síntesis de receptores)'], activan: [] },
+    inhibidores: [
+      { nombre: 'Hipercolesterolemia familiar', t: 'Receptores de LDL defectuosos o ausentes: la LDL no se capta y se acumula en sangre. Los homocigotas tienen aterosclerosis grave desde la infancia.' },
+      { nombre: 'Dislipemias', plus: true, t: 'La clasificación de Fredrickson ordena las hiperlipoproteinemias según la lipoproteína elevada; la IIa (LDL alta) es la de la hipercolesterolemia familiar. Fármacos: estatinas, ezetimiba, fibratos (activan el PPARα y bajan los triglicéridos) y omega-3.' },
+    ],
+  },
+  {
+    id: 'lpl_qm', ruta: 'lipoproteinas', enzima: 'Lipoproteína lipasa', alias: 'LPL',
+    de: ['qm'], a: ['remanente'], regulada: true,
+    lugar: 'Endotelio de los capilares',
+    tipo: 'Vía exógena: hidroliza los triglicéridos del quilomicrón',
+    notas: [{ t: 'Los ácidos grasos entran al músculo y al tejido adiposo. Quedan los remanentes de quilomicrones, ricos en colesterol.' }],
+    regulacion: { inhiben: ['Apo C-III'], activan: ['Apo C-II'] },
+    inhibidores: [{ nombre: 'Hipertrigliceridemia', plus: true, t: 'Cuando es muy alta puede dar pancreatitis.' }],
+  },
+  {
+    id: 'captacion', ruta: 'lipoproteinas', enzima: 'Captación hepática por la apo E',
+    de: ['remanente'], a: ['colesterol'],
+    rot: { x: 1530, y: 340, ancla: 'end' },
+    lugar: 'Hígado',
+    tipo: 'Vía exógena: el hígado capta los remanentes',
+    notas: [{ t: 'La apo E es el ligando de los receptores hepáticos de remanentes y del de LDL.' }],
+  },
+  {
+    id: 'lcat', ruta: 'lipoproteinas', enzima: 'LCAT', alias: 'Lecitina colesterol aciltransferasa',
+    de: ['hdl_n'], a: ['hdl'],
+    lugar: 'Plasma (circula con la HDL)',
+    tipo: 'Transporte reverso: esterifica el colesterol que toma la HDL',
+    notas: [
+      { t: 'Pasa un ácido graso de la lecitina al colesterol y forma ésteres de colesterol, que se meten en el núcleo de la HDL: la partícula se vuelve esférica.' },
+    ],
+    regulacion: { inhiben: [], activan: ['Apo A-I'] },
+  },
+  {
+    id: 'cetp', ruta: 'lipoproteinas', enzima: 'CETP', alias: 'Proteína de transferencia de ésteres de colesterol',
+    de: ['hdl'], a: ['ldl'],
+    rot: { x: 1840, y: 150, ancla: 'middle' },
+    lugar: 'Plasma',
+    tipo: 'Pasa ésteres de colesterol de la HDL a las lipoproteínas con apo B',
+    notas: [{ t: 'En sentido inverso pasa triglicéridos.' }],
+  },
+  {
+    id: 'entrega', ruta: 'lipoproteinas', enzima: 'Entrega al hígado',
+    de: ['hdl'], a: ['esteres'],
+    lugar: 'Hígado',
+    tipo: 'Transporte reverso: la HDL lleva el colesterol al hígado',
+    notas: [
+      { t: 'El hígado lo elimina como ácidos biliares.' },
+      { plus: true, t: 'Lo entrega por un receptor que capta solo los ésteres (SR-B1) o pasándolo a otras lipoproteínas por la CETP.' },
+    ],
+  },
 ];
 
 /* Lo que muestra el panel cuando no hay nada elegido: los balances. */
@@ -860,6 +1058,17 @@ BALANCES.push(
     notas: ['En el citosol, cuando sobran glúcidos: hígado, tejido adiposo y glándula mamaria.'],
   },
 );
+
+BALANCES.push({
+  ruta: 'lipoproteinas', titulo: 'Lipoproteínas: las tres vías',
+  ecuacion: ['Quilomicrones, VLDL y HDL', 'Tejidos e hígado'],
+  notas: [
+    'Exógena (dieta): quilomicrón, lipoproteína lipasa, remanente, hígado.',
+    'Endógena (hígado): VLDL, IDL, LDL, receptor de LDL.',
+    'Transporte reverso: HDL naciente, LCAT, HDL madura, hígado.',
+    'Cuanto más lípido tienen, más grandes y menos densas son.',
+  ],
+});
 
 export const RENDIMIENTO = {
   filas: [

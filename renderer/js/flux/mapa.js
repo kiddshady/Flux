@@ -179,9 +179,13 @@ function dibujarNodo(m) {
 }
 
 function dibujar() {
-  const mito = { x: 36, y: 948, w: LIENZO.w - 72, h: LIENZO.h - 948 - 14 };
+  const mito = { x: 36, y: 948, w: 1524 - 36, h: LIENZO.h - 948 - 14 };
   return `
     <g class="fx-zonas" aria-hidden="true">
+      <rect class="fx-mito" x="1120" y="46" width="940" height="236" rx="28"/>
+      <text class="fx-lugar" x="1146" y="76">Plasma</text>
+      <text class="fx-fase" x="1640" y="884" text-anchor="middle">Síntesis de colesterol</text>
+      <text class="fx-fase__sub" x="1640" y="900" text-anchor="middle">citosol y retículo endoplasmático</text>
       <rect class="fx-mito" x="${mito.x}" y="${mito.y}" width="${mito.w}" height="${mito.h}" rx="28"/>
       <text class="fx-lugar" x="60" y="52">Citosol</text>
       <text class="fx-lugar" x="60" y="${mito.y + 30}">Matriz mitocondrial</text>
